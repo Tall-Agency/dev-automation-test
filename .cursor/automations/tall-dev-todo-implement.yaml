@@ -30,7 +30,9 @@ workflow:
 
         On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, commit, push, PR to main, merge, staging screenshot via scripts/bugherd/capture-staging-screenshot.mjs (STAGING_BASIC_AUTH_* from .env), handoff comment with branch/PR, assign requester, Ready for Tall QA.
 
-        Staging screenshots: talldevstg uses HTTP basic auth. Run capture-staging-screenshot.mjs with TASK_URL from the task; credentials in .env (STAGING_BASIC_AUTH_USER, STAGING_BASIC_AUTH_PASSWORD). Do not commit passwords.
+        Staging screenshots (required): Automations have no .env. Call get_project_details for project 527751; use basic_auth_username and basic_auth_password. Then run:
+        STAGING_BASIC_AUTH_USER=... STAGING_BASIC_AUTH_PASSWORD=... TASK_URL=<task url> OUT_FILE=.bugherd-screenshots/task-{id}-staging.png node scripts/bugherd/capture-staging-screenshot.mjs
+        Upload via prepare_attachment_upload → PUT → update_task_attachments set. Do not mark Ready for Tall QA without attachment unless requester waived screenshots.
 
         On revise: add_comment revised plan, stay Todo, end (via Cursor — revised plan), no code.
 

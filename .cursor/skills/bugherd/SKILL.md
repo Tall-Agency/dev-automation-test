@@ -45,7 +45,7 @@ Do **not** auto-implement every Backlog ticket without the user asking (unless P
 4. Implement in `web/app/themes/ai-dev/` (PHP blocks, SCSS, JS per task URL).
 5. `npm run build` in theme dir (or `scripts/deployhq-build.sh` from repo root).
 6. **Git (required):** one branch per BugHerd task — `bugherd/task-{id}` from `main`. Never commit to `main` directly. Push the task branch, open a PR to `main`, merge when ready. Staging auto-deploys only when `main` is updated.
-7. After merge to `main`, wait for staging deploy, then capture screenshot on staging (use `scripts/bugherd/capture-staging-screenshot.mjs` — staging requires HTTP basic auth from `.env`).
+7. After merge to `main`, wait for staging deploy, then capture screenshot (see **Staging screenshots** in SKILL / implement prompt — automations: `get_project_details` → `basic_auth_*`).
 8. Handoff:
    - Staging screenshot of task URL → `prepare_attachment_upload` → PUT → `update_task_attachments` `set`
    - `add_comment` - what changed; `@` requester; `(via Cursor)`
@@ -105,7 +105,7 @@ Loop ticks: **comments only** - never implement or change status.
 | Theme build | On task branch: `cd web/app/themes/ai-dev && npm run build` or `sh scripts/deployhq-build.sh` |
 | Local verify | `sh scripts/qa-homepage.sh` (optional) |
 | Deploy to staging | Merge PR into `main` only — auto-deploy runs on push to `main` |
-| Staging screenshot | `scripts/bugherd/capture-staging-screenshot.mjs` (reads `STAGING_BASIC_AUTH_*` from `.env`) |
+| Staging screenshot | `capture-staging-screenshot.mjs` — creds from `get_project_details` in automations, or `.env` locally |
 | Rework | Continue on the same `bugherd/task-{id}` branch; new commits → PR → merge `main` again |
 
 **Never** push task fixes directly to `main`. Staging is HTTP basic auth protected — credentials live in `.env` only.

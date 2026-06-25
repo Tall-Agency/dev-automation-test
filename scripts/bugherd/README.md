@@ -18,23 +18,26 @@ Optional webhooks: [webhook-setup.md](./webhook-setup.md).
 
 ## Staging screenshot (HTTP basic auth)
 
-Staging is behind `.htaccess` auth. Add to **`.env`** (not committed):
+Staging is behind `.htaccess` auth.
 
-```bash
-STAGING_BASIC_AUTH_USER='talldevstg'
-STAGING_BASIC_AUTH_PASSWORD='your-password'
-```
+| Environment | Credentials |
+|-------------|-------------|
+| **Cursor Automation** | `get_project_details` project `527751` → `basic_auth_username` / `basic_auth_password` |
+| **Local agent** | Same, or `.env` (`STAGING_BASIC_AUTH_*`) |
+
+Set project basic auth in BugHerd project settings if `get_project_details` omits them.
 
 First time:
 
 ```bash
-cd scripts/bugherd && npm install
+cd scripts/bugherd && npm install && npx playwright install chromium
 ```
 
-Capture after merge to `main`:
+Capture (pass creds inline in automations):
 
 ```bash
-TASK_URL="https://talldevstg.wpenginepowered.com/" \
+STAGING_BASIC_AUTH_USER="..." STAGING_BASIC_AUTH_PASSWORD="..." \
+TASK_URL="https://talldevstg.wpenginepowered.com/path" \
 OUT_FILE=".bugherd-screenshots/task-1-staging.png" \
 node scripts/bugherd/capture-staging-screenshot.mjs
 ```

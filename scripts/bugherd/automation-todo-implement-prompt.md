@@ -64,33 +64,38 @@ If PR merge or deploy is blocked: comment what blocked you, leave **In progress*
 
 ## Staging screenshots (HTTP basic auth)
 
-Staging (`talldevstg.wpenginepowered.com`) is behind `.htaccess` basic auth. Credentials are in repo `.env` only:
+Staging (`talldevstg.wpenginepowered.com`) is behind `.htaccess` basic auth. **Automations do not have `.env`** — you must fetch credentials every run.
 
-- `STAGING_BASIC_AUTH_USER`
-- `STAGING_BASIC_AUTH_PASSWORD`
+### Credential source (required order)
 
-**Do not** commit credentials. Read `staging_basic_auth` in config.
+1. **Automations / cloud:** `get_project_details` for project `527751`. Use `basic_auth_username` and `basic_auth_password` from the response.
+2. **Local chat with `.env`:** `STAGING_BASIC_AUTH_USER` / `STAGING_BASIC_AUTH_PASSWORD` from `.env` if `get_project_details` does not return auth fields.
 
-### Capture script (preferred)
+**Never** commit credentials to git. **Never** skip the screenshot and mark **Ready for Tall QA** if credentials are available from BugHerd project settings.
 
-1. `cd scripts/bugherd && npm install` (first time only).
-2. From repo root:
+### Capture script (required after merge to main)
+
+1. Ensure Playwright is installed: `cd scripts/bugherd && npm install && npx playwright install chromium` (first time in this environment).
+2. From repo root, pass credentials **inline** (from step above):
 
 ```bash
+STAGING_BASIC_AUTH_USER="<from get_project_details>" \
+STAGING_BASIC_AUTH_PASSWORD="<from get_project_details>" \
 TASK_URL="<task url from get_task_details>" \
 OUT_FILE=".bugherd-screenshots/task-{id}-staging.png" \
 node scripts/bugherd/capture-staging-screenshot.mjs
 ```
 
-The script loads `.env` automatically. Optional: `SCREENSHOT_SELECTOR` for element crop.
+Optional: `SCREENSHOT_SELECTOR` for element crop. Script also loads `.env` when present (local only).
 
-3. `prepare_attachment_upload` → PUT → `update_task_attachments` `set`.
+3. Confirm output file exists and is not empty.
+4. `prepare_attachment_upload` → PUT file bytes → `update_task_attachments` `action: "set"`.
 
-### Playwright fallback (if script unavailable)
+### If capture fails
 
-Use `httpCredentials` with the same env vars when opening the task URL in Playwright or browser automation.
-
-If auth fails: comment that staging screenshot was blocked; leave **In progress**; do not mark **Ready for Tall QA** without a screenshot unless the user explicitly waived it in the task thread.
+- Retry once after 30s (deploy may still be running).
+- If `basic_auth_*` missing from `get_project_details`: `add_comment` asking owner to set BugHerd project basic auth in project settings; leave **In progress**.
+- Do not mark **Ready for Tall QA** without an attachment unless the requester waived screenshots in the task thread.
 
 ## Review loop safety
 

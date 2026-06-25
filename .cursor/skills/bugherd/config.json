@@ -45,7 +45,8 @@
   "staging_basic_auth": {
     "env_user": "STAGING_BASIC_AUTH_USER",
     "env_password": "STAGING_BASIC_AUTH_PASSWORD",
-    "note": "HTTP basic auth on staging (.htaccess). Values live in .env only — never commit."
+    "automation_source": "bugherd_project",
+    "note": "Local dev: .env. Automations (no .env): get_project_details → basic_auth_username / basic_auth_password, then pass to capture script."
   },
   "urls": {
     "local": "https://auto-build-test.ssl.localhost",
