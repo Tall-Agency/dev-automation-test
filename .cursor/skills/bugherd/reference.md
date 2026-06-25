@@ -55,7 +55,8 @@ prepare_attachment_upload(project_id, task_id, files[])
 | Symptom | Fix |
 |---------|-----|
 | `update_task` Todo fails | Use exact `columns.todo` from config (`Todo`) |
-| Staging screenshot wrong | Capture `https://talldevstg.wpenginepowered.com` + task path |
+| Staging screenshot wrong | Run `capture-staging-screenshot.mjs`; confirm `STAGING_BASIC_AUTH_*` in `.env` |
+| Auth dialog / blank shot | `.env` credentials; script uses Playwright `httpCredentials` |
 | Build missing on staging | `npm run build` on task branch; merge PR to `main` |
 | Staging not updated | Confirm merge to `main` completed (deploy is main-only) |
 | S3 PUT 403 | Omit `x-amz-acl` on PUT |

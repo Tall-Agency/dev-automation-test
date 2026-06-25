@@ -1,0 +1,9 @@
+{
+  "name": "bugherd-scripts",
+  "private": true,
+  "type": "module",
+  "description": "BugHerd staging screenshot capture for Tall Dev",
+  "dependencies": {
+    "playwright": "^1.49.0"
+  }
+}

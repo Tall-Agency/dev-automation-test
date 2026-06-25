@@ -42,6 +42,11 @@
     "staging_url": "https://talldevstg.wpenginepowered.com",
     "note": "Staging auto-deploys when main is updated. Task branches do not deploy until merged."
   },
+  "staging_basic_auth": {
+    "env_user": "STAGING_BASIC_AUTH_USER",
+    "env_password": "STAGING_BASIC_AUTH_PASSWORD",
+    "note": "HTTP basic auth on staging (.htaccess). Values live in .env only — never commit."
+  },
   "urls": {
     "local": "https://auto-build-test.ssl.localhost",
     "staging": "https://talldevstg.wpenginepowered.com"
@@ -56,7 +61,8 @@
     "automation_prompt_plan": "scripts/bugherd/automation-backlog-plan-prompt.md",
     "automation_prompt_implement": "scripts/bugherd/automation-todo-implement-prompt.md",
     "theme_build": "scripts/deployhq-build.sh",
-    "qa_homepage": "scripts/qa-homepage.sh"
+    "qa_homepage": "scripts/qa-homepage.sh",
+    "capture_staging": "scripts/bugherd/capture-staging-screenshot.mjs"
   },
   "automation": {
     "schedule_cron": "*/10 * * * *",

@@ -55,12 +55,42 @@ Unless `dry_run` is true:
 4. `npm run build` in theme directory (or `sh scripts/deployhq-build.sh`).
 5. Commit on task branch; push to origin.
 6. Open PR: task branch → `main`. Merge to `main` (triggers staging auto-deploy).
-7. After merge, verify staging at task URL on `https://talldevstg.wpenginepowered.com` → screenshot → upload attachment.
+7. After merge, capture staging screenshot (HTTP basic auth required — see **Staging screenshots** below) → upload attachment.
 8. `add_comment` — branch name, PR link, what changed; `@` requester; `(via Cursor)`.
 9. `update_task_assignees` `action: "set"` → **requester**.
 10. `update_task` → **Ready for Tall QA**.
 
 If PR merge or deploy is blocked: comment what blocked you, leave **In progress**, summarize for manual follow-up. Do not commit to `main` outside a PR merge.
+
+## Staging screenshots (HTTP basic auth)
+
+Staging (`talldevstg.wpenginepowered.com`) is behind `.htaccess` basic auth. Credentials are in repo `.env` only:
+
+- `STAGING_BASIC_AUTH_USER`
+- `STAGING_BASIC_AUTH_PASSWORD`
+
+**Do not** commit credentials. Read `staging_basic_auth` in config.
+
+### Capture script (preferred)
+
+1. `cd scripts/bugherd && npm install` (first time only).
+2. From repo root:
+
+```bash
+TASK_URL="<task url from get_task_details>" \
+OUT_FILE=".bugherd-screenshots/task-{id}-staging.png" \
+node scripts/bugherd/capture-staging-screenshot.mjs
+```
+
+The script loads `.env` automatically. Optional: `SCREENSHOT_SELECTOR` for element crop.
+
+3. `prepare_attachment_upload` → PUT → `update_task_attachments` `set`.
+
+### Playwright fallback (if script unavailable)
+
+Use `httpCredentials` with the same env vars when opening the task URL in Playwright or browser automation.
+
+If auth fails: comment that staging screenshot was blocked; leave **In progress**; do not mark **Ready for Tall QA** without a screenshot unless the user explicitly waived it in the task thread.
 
 ## Review loop safety
 

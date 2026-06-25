@@ -16,6 +16,31 @@ Setup: [automation.md](../../.cursor/skills/bugherd/automation.md).
 
 Optional webhooks: [webhook-setup.md](./webhook-setup.md).
 
+## Staging screenshot (HTTP basic auth)
+
+Staging is behind `.htaccess` auth. Add to **`.env`** (not committed):
+
+```bash
+STAGING_BASIC_AUTH_USER='talldevstg'
+STAGING_BASIC_AUTH_PASSWORD='your-password'
+```
+
+First time:
+
+```bash
+cd scripts/bugherd && npm install
+```
+
+Capture after merge to `main`:
+
+```bash
+TASK_URL="https://talldevstg.wpenginepowered.com/" \
+OUT_FILE=".bugherd-screenshots/task-1-staging.png" \
+node scripts/bugherd/capture-staging-screenshot.mjs
+```
+
+Then upload via BugHerd MCP (`prepare_attachment_upload` → PUT → `update_task_attachments`).
+
 ## Git and deploy
 
 - **One branch per BugHerd task:** `bugherd/task-{id}` from `main`

@@ -28,7 +28,9 @@ workflow:
 
         Git: one branch per task — bugherd/task-{id} from main. Never commit to main directly. Push task branch, PR to main, merge (staging auto-deploys on main only). Screenshot staging after merge. Reuse same branch for rework on that task.
 
-        On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, commit, push, PR to main, merge, staging screenshot, handoff comment with branch/PR, assign requester, Ready for Tall QA.
+        On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, commit, push, PR to main, merge, staging screenshot via scripts/bugherd/capture-staging-screenshot.mjs (STAGING_BASIC_AUTH_* from .env), handoff comment with branch/PR, assign requester, Ready for Tall QA.
+
+        Staging screenshots: talldevstg uses HTTP basic auth. Run capture-staging-screenshot.mjs with TASK_URL from the task; credentials in .env (STAGING_BASIC_AUTH_USER, STAGING_BASIC_AUTH_PASSWORD). Do not commit passwords.
 
         On revise: add_comment revised plan, stay Todo, end (via Cursor — revised plan), no code.
 
