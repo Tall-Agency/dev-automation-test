@@ -62,7 +62,7 @@ check_pattern featured 'See all featured' 'Featured: button label present'
 check_page agency "Agency"
 check_pattern agency 'media-header' 'Agency: media header present'
 check_pattern agency 'text-block--intro' 'Agency: intro text block present'
-check_pattern agency 'centered-list--orange' 'Agency: orange values list present'
+check_pattern agency 'centered-list--black' 'Agency: black values list present'
 check_pattern agency 'scrolling-text' 'Agency: scrolling text present'
 check_pattern agency 'scrolling-logos' 'Agency: client logos present'
 

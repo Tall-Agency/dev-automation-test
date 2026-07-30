@@ -12,6 +12,7 @@ function ai_dev_sync_bugherd_media(): void {
 
   ai_dev_sync_lego_case_study_thumbnail();
   ai_dev_sync_homepage_forest_panel_image();
+  ai_dev_sync_agency_values_list_background();
 }
 
 /**
@@ -96,6 +97,49 @@ function ai_dev_sync_homepage_forest_panel_image(): void {
   );
 
   $synced['homepage_forest_panel'] = $sync_version;
+  update_option($option_key, $synced);
+}
+
+/**
+ * Agency page (post 9) — "Our values" centered list background.
+ * BugHerd task 14: switch centered-list from orange to black brand colour.
+ */
+function ai_dev_sync_agency_values_list_background(): void {
+  $sync_version = 'bugherd-task-14-agency-values-black';
+  $option_key = 'ai_dev_bugherd_media_sync';
+  $synced = get_option($option_key, array());
+
+  if (($synced['agency_values_list_bg'] ?? '') === $sync_version) {
+    return;
+  }
+
+  $page_id = 9;
+  $page = get_post($page_id);
+
+  if (!$page || !str_contains($page->post_content, 'acf/centered-list')) {
+    return;
+  }
+
+  $updated = preg_replace(
+    '/"background"\s*:\s*"orange"\s*,\s*"_background"\s*:\s*"field_ai_dev_cl_bg"/',
+    '"background":"black","_background":"field_ai_dev_cl_bg"',
+    $page->post_content,
+    1,
+    $count
+  );
+
+  if (!$count) {
+    return;
+  }
+
+  wp_update_post(
+    array(
+      'ID'           => $page_id,
+      'post_content' => $updated,
+    )
+  );
+
+  $synced['agency_values_list_bg'] = $sync_version;
   update_option($option_key, $synced);
 }
 
