@@ -96,6 +96,10 @@
     font-weight: 500;
   }
 
+  &__col--address {
+    color: var(--color-orange);
+  }
+
   &__col--info {
     a {
       color: inherit;
