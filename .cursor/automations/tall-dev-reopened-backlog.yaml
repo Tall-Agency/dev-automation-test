@@ -25,7 +25,7 @@ workflow:
         End with a one-paragraph summary of what you checked and any nudges posted.
   model: ""
   gitConfig:
-    repo: "danielmawtall/dev-automation-test"
+    repo: "Tall-Agency/dev-automation-test"
     branch: "main"
   agentOptions:
     skipInstall: false

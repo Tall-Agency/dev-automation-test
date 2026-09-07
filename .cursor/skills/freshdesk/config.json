@@ -1,0 +1,102 @@
+{
+  "website_url": "https://talldevstg.wpenginepowered.com",
+  "io_mode": "worker",
+  "freshdesk_fields": {
+    "website_url": "cf_website_url",
+    "repo": "cf_repo"
+  },
+  "freshdesk_domain": "help.tall.agency",
+  "repo": {
+    "github": "Tall-Agency/dev-automation-test",
+    "theme_path": "web/app/themes/ai-dev"
+  },
+  "bugherd_project_id": "527751",
+  "worker": {
+    "base_url": "https://tall-freshdesk-router.tall-account.workers.dev",
+    "secret_env": "FRESHDESK_ROUTER_SECRET",
+    "note": "Same secret as Worker CURSOR_WEBHOOK_SECRET (see tall-freshdesk-router/.dev.vars locally). Set FRESHDESK_ROUTER_URL for scripts."
+  },
+  "status_ids": {
+    "open": 2,
+    "pending": 3,
+    "resolved": 4,
+    "closed": 5,
+    "note": "Default Freshdesk IDs - confirm in Admin → Ticket Statuses"
+  },
+  "statuses": {
+    "backlog": "Open",
+    "todo": "Pending",
+    "in_progress": "Open",
+    "ready_for_qa": "Resolved"
+  },
+  "tags": {
+    "backlog": "cursor-backlog",
+    "todo": "cursor-todo",
+    "in_progress": "cursor-in-progress",
+    "ready_for_qa": "cursor-ready-qa"
+  },
+  "comment_markers": {
+    "plan": "(via Cursor — plan)",
+    "revised_plan": "(via Cursor — revised plan)",
+    "agent": "(via Cursor)",
+    "router": "(via Cursor — router)"
+  },
+  "reopened": {
+    "prompt_after_minutes": 10
+  },
+  "plan_automation": {
+    "auto_plan_rework": true,
+    "max_tickets_per_run": 1
+  },
+  "git": {
+    "deploy_branch": "main",
+    "task_branch_prefix": "freshdesk/ticket-",
+    "never_commit_to_deploy_branch": true
+  },
+  "implement_automation": {
+    "dry_run": true,
+    "max_review_loops": 3,
+    "max_tickets_per_run": 1,
+    "base_branch": "main",
+    "branch_prefix": "freshdesk/ticket-",
+    "merge_pr_to_deploy": true
+  },
+  "deploy": {
+    "trigger": "push to main",
+    "staging_url": "https://talldevstg.wpenginepowered.com"
+  },
+  "staging_basic_auth": {
+    "env_user": "STAGING_BASIC_AUTH_USER",
+    "env_password": "STAGING_BASIC_AUTH_PASSWORD",
+    "automation_source": "bugherd_project",
+    "bugherd_project_id": "527751"
+  },
+  "urls": {
+    "staging": "https://talldevstg.wpenginepowered.com"
+  },
+  "scripts": {
+    "automation_prompt_phase1": "scripts/freshdesk/automation-reopened-prompt.md",
+    "automation_prompt_plan": "scripts/freshdesk/automation-plan-prompt.md",
+    "automation_prompt_implement": "scripts/freshdesk/automation-implement-prompt.md",
+    "theme_build": "scripts/deployhq-build.sh",
+    "capture_staging": "scripts/bugherd/capture-staging-screenshot.mjs"
+  },
+  "automation": {
+    "schedule_cron": "*/10 * * * *",
+    "io_mode": "worker",
+    "mcp_servers": ["BugHerd"],
+    "phase1_reopened": {
+      "workflow": ".cursor/automations/tall-dev-freshdesk-reopened.yaml"
+    },
+    "phase2_plan": {
+      "workflow": ".cursor/automations/tall-dev-freshdesk-plan.yaml"
+    },
+    "phase3_implement": {
+      "workflow": ".cursor/automations/tall-dev-freshdesk-implement.yaml"
+    }
+  },
+  "router": {
+    "package": "tall-freshdesk-router",
+    "docs": "tall-freshdesk-router/docs/path-2-worker-io.md"
+  }
+}

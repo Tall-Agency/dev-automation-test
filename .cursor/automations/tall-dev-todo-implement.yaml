@@ -44,7 +44,7 @@ workflow:
   model: ""
   gitConfig:
     # Checkout base only — all task work happens on bugherd/task-{id} branches
-    repo: "danielmawtall/dev-automation-test"
+    repo: "Tall-Agency/dev-automation-test"
     branch: "main"
   agentOptions:
     skipInstall: false

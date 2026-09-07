@@ -1,0 +1,19 @@
+{
+  "name": "tall-freshdesk-router",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker: Freshdesk Website URL + Repo → per-repo Cursor Automations",
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250317.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.8.2",
+    "wrangler": "^4.0.0"
+  }
+}

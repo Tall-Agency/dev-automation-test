@@ -1,0 +1,16 @@
+name = "tall-freshdesk-router"
+main = "src/index.ts"
+compatibility_date = "2025-03-01"
+account_id = "bc7ef70455e8dfb76a603471f016b627"
+
+# Optional: bind KV for live registry updates without redeploy
+# [[kv_namespaces]]
+# binding = "SITE_REGISTRY"
+# id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Secrets (wrangler secret put):
+#   FRESHDESK_API_KEY
+#   FRESHDESK_DOMAIN          help.tall.agency
+#   CURSOR_WEBHOOK_SECRET     shared auth for Cursor webhooks + /actions/*
+# Optional:
+#   WEBHOOK_SHARED_SECRET     if Freshdesk sends a shared secret header

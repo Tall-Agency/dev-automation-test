@@ -8,7 +8,7 @@
 
 Phase details: [automation-phases.md](automation-phases.md). Optional webhooks: [webhook-setup.md](../../../scripts/bugherd/webhook-setup.md).
 
-Project: **527751** (Tall Dev). Repo: **danielmawtall/dev-automation-test**.
+Project: **527751** (Tall Dev). Repo: **Tall-Agency/dev-automation-test**.
 
 ---
 
@@ -36,7 +36,7 @@ Project: **527751** (Tall Dev). Repo: **danielmawtall/dev-automation-test**.
 1. Keep `implement_automation.dry_run: true` in config while testing.
 2. Create from [`.cursor/automations/tall-dev-todo-implement.yaml`](../../automations/tall-dev-todo-implement.yaml):
    - **Tools:** BugHerd MCP + git/PR
-   - **gitConfig:** `danielmawtall/dev-automation-test` / `main` (checkout base only)
+   - **gitConfig:** `Tall-Agency/dev-automation-test` / `main` (checkout base only)
    - **Branch rule:** each task uses `bugherd/task-{id}`; merge PR to `main` for staging deploy
 3. Test approve / revise / unclear on a test **Todo** task.
 4. Set `dry_run: false` when ready.

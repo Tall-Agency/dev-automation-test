@@ -53,7 +53,7 @@
     "staging": "https://talldevstg.wpenginepowered.com"
   },
   "repo": {
-    "github": "danielmawtall/dev-automation-test",
+    "github": "Tall-Agency/dev-automation-test",
     "theme_path": "web/app/themes/ai-dev"
   },
   "scripts": {

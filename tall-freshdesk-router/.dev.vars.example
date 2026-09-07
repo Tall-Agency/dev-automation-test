@@ -1,0 +1,6 @@
+# Local secrets for wrangler dev (do not commit .dev.vars)
+
+FRESHDESK_API_KEY=
+FRESHDESK_DOMAIN=yourcompany.freshdesk.com
+CURSOR_WEBHOOK_SECRET=
+WEBHOOK_SHARED_SECRET=

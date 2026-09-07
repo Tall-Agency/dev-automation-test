@@ -1,0 +1,33 @@
+name: "Tall Dev - Freshdesk reopened nudge"
+description: >-
+  Webhook-driven: private-note nudge when a ticket returns from QA without an
+  explanation. Path 2 Worker I/O - no Freshdesk MCP.
+workflow:
+  triggers:
+    - webhook: {}
+    - cron:
+        cron: "*/10 * * * *"
+  actions:
+    - mcp:
+        server:
+          name: BugHerd
+  prompts:
+    - prompt: |
+        You are the Tall Dev Freshdesk reopened-ticket watcher (Phase 1). Path 2 Worker I/O.
+
+        Do NOT use Freshdesk MCP. Prefer webhook payload. Write nudges only via
+        scripts/freshdesk/worker-action.sh (FRESHDESK_ROUTER_URL + FRESHDESK_ROUTER_SECRET).
+
+        Read:
+        - `.cursor/skills/freshdesk/SKILL.md`
+        - `scripts/freshdesk/automation-reopened-prompt.md`
+        - `tall-freshdesk-router/docs/path-2-worker-io.md`
+
+        Private notes only. Never implement. End with summary.
+  model: ""
+  gitConfig:
+    repo: "Tall-Agency/dev-automation-test"
+    branch: "main"
+  agentOptions:
+    skipInstall: false
+  memoryEnabled: false

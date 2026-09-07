@@ -36,7 +36,7 @@ workflow:
         End summary: checked, planned task id, skipped reasons.
   model: ""
   gitConfig:
-    repo: "danielmawtall/dev-automation-test"
+    repo: "Tall-Agency/dev-automation-test"
     branch: "main"
   agentOptions:
     skipInstall: false

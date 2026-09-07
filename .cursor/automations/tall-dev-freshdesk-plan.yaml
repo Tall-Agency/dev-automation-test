@@ -1,0 +1,38 @@
+name: "Tall Dev - Freshdesk plan to Pending"
+description: >-
+  Webhook-driven: post a private implementation plan via Worker actions and move
+  the ticket to Pending. No Freshdesk MCP (Path 2). Never implements.
+workflow:
+  triggers:
+    - webhook: {}
+    - cron:
+        cron: "*/10 * * * *"
+  actions:
+    - mcp:
+        server:
+          name: BugHerd
+  prompts:
+    - prompt: |
+        You are the Tall Dev Freshdesk planner (Phase 2). Path 2 Worker I/O.
+
+        Do NOT use Freshdesk MCP. Ticket context is in the webhook payload (description + conversations).
+        Write private notes and status updates only via:
+        scripts/freshdesk/worker-action.sh
+        (needs FRESHDESK_ROUTER_URL + FRESHDESK_ROUTER_SECRET).
+
+        Read:
+        - `.cursor/skills/freshdesk/config.json`
+        - `scripts/freshdesk/automation-plan-prompt.md`
+        - `tall-freshdesk-router/docs/path-2-worker-io.md`
+
+        Verify repo.github is Tall-Agency/dev-automation-test.
+        Optional BugHerd enrichment only. Never public-reply. Never implement.
+
+        Max one ticket per webhook/run. End with summary.
+  model: ""
+  gitConfig:
+    repo: "Tall-Agency/dev-automation-test"
+    branch: "main"
+  agentOptions:
+    skipInstall: false
+  memoryEnabled: false
