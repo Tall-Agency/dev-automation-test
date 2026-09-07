@@ -1,0 +1,38 @@
+name: "Tall Dev - Freshdesk review and implement"
+description: >-
+  Every minute, claim a Freshdesk job from tall-freshdesk-router (Path 2 Worker I/O),
+  classify approval from webhook payload conversations, then implement on clear approval.
+workflow:
+  triggers:
+    - cron:
+        cron: "*/1 * * * *"
+  actions:
+    - mcp:
+        server:
+          name: BugHerd
+    - gitPr: {}
+  prompts:
+    - prompt: |
+        You are the Tall Dev Freshdesk implementer (Phase 3). Path 2 Worker I/O.
+
+        Do NOT use Freshdesk MCP. Use webhook payload conversations for approval classification.
+        Write back only via scripts/freshdesk/worker-action.sh (FRESHDESK_ROUTER_URL + FRESHDESK_ROUTER_SECRET).
+
+        Read:
+        - `.cursor/skills/freshdesk/config.json`
+        - `.cursor/skills/freshdesk/SKILL.md`
+        - `scripts/freshdesk/automation-implement-prompt.md`
+        - `tall-freshdesk-router/docs/path-2-worker-io.md`
+
+        If dry_run true: classify + private note only.
+        Branch freshdesk/ticket-{id}; never commit to main directly; PR → merge main.
+        Staging screenshot: BugHerd get_project_details 527751 + scripts/capture-staging-screenshot.mjs.
+
+        Private notes only. End with summary.
+  model: ""
+  gitConfig:
+    repo: "Tall-Agency/dev-automation-test"
+    branch: "main"
+  agentOptions:
+    skipInstall: false
+  memoryEnabled: false
