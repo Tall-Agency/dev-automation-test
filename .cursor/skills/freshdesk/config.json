@@ -1,0 +1,56 @@
+{
+  "router": {
+    "url_env": "FRESHDESK_ROUTER_URL",
+    "secret_env": "FRESHDESK_ROUTER_SECRET",
+    "note": "Worker I/O only — do not use Freshdesk MCP. All writes via scripts/freshdesk/worker-action.sh."
+  },
+  "comment_markers": {
+    "plan": "(via Cursor — plan)",
+    "revised_plan": "(via Cursor — revised plan)",
+    "agent": "(via Cursor)"
+  },
+  "git": {
+    "deploy_branch": "main",
+    "task_branch_prefix": "freshdesk/ticket-",
+    "never_commit_to_deploy_branch": true
+  },
+  "implement_automation": {
+    "dry_run": true,
+    "max_review_loops": 3,
+    "max_tickets_per_run": 1,
+    "base_branch": "main",
+    "branch_prefix": "freshdesk/ticket-",
+    "merge_pr_to_deploy": true,
+    "private_notes_only": true
+  },
+  "deploy": {
+    "trigger": "push to main",
+    "staging_url": "https://talldevstg.wpenginepowered.com",
+    "note": "Staging auto-deploys when main is updated. Task branches do not deploy until merged."
+  },
+  "bugherd": {
+    "project_id": "527751",
+    "get_project_details": true,
+    "staging_screenshot_script": "scripts/capture-staging-screenshot.mjs"
+  },
+  "urls": {
+    "local": "https://auto-build-test.ssl.localhost",
+    "staging": "https://talldevstg.wpenginepowered.com"
+  },
+  "repo": {
+    "github": "Tall-Agency/dev-automation-test",
+    "theme_path": "web/app/themes/ai-dev"
+  },
+  "scripts": {
+    "worker_action": "scripts/freshdesk/worker-action.sh",
+    "automation_prompt_implement": "scripts/freshdesk/automation-implement-prompt.md"
+  },
+  "automation": {
+    "schedule_cron": "*/1 * * * *",
+    "path": "path-2-worker-io",
+    "phase3_implement": {
+      "workflow": ".cursor/automations/tall-dev-freshdesk-implement.yaml",
+      "prompt": "scripts/freshdesk/automation-implement-prompt.md"
+    }
+  }
+}
