@@ -1,4 +1,5 @@
 import { forwardToCursor, normalizeToken, webhookForPhase } from "./cursor.ts";
+import { markdownToHtml } from "./markdown.ts";
 import { mintActionToken, verifyActionToken } from "./token.ts";
 import {
   createPrivateNote,
@@ -25,6 +26,8 @@ interface IncomingBody {
 interface NoteActionBody {
   ticket_id?: number | string;
   body?: string;
+  /** Defaults to markdown; "html" passes the body through untouched. */
+  format?: "markdown" | "html";
 }
 
 interface UpdateActionBody {
@@ -383,7 +386,11 @@ async function handleNoteAction(
   const authErr = await authorizeTicketAction(request, env, ticketId);
   if (authErr) return authErr;
 
-  const result = await createPrivateNote(env, ticketId, noteBody);
+  // Agents write Markdown; Freshdesk renders the body as HTML.
+  const html =
+    body.format === "html" ? noteBody : markdownToHtml(noteBody);
+
+  const result = await createPrivateNote(env, ticketId, html);
   return json({ ok: true, ticket_id: ticketId, result });
 }
 

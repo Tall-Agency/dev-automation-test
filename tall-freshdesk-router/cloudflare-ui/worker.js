@@ -48,6 +48,133 @@ function webhookForPhase(repo, phase) {
   return repo.cursor_webhooks[phase];
 }
 
+// src/markdown.ts
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function renderInline(escaped) {
+  const codeSpans = [];
+  let out = escaped.replace(/`([^`]+)`/g, (_m, code) => {
+    codeSpans.push(code);
+    return `\0CODE${codeSpans.length - 1}\0`;
+  });
+  out = out.replace(
+    /\[([^\]]+)\]\(([^)\s]+)\)/g,
+    (_m, label, href) => /^(https?:|mailto:)/i.test(href) ? `<a href="${href}">${label}</a>` : label
+  );
+  out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  return out.replace(
+    /\u0000CODE(\d+)\u0000/g,
+    (_m, i) => `<code style="background:#f2f2f2;padding:1px 4px;border-radius:3px">${codeSpans[Number(i)]}</code>`
+  );
+}
+var CELL_STYLE = "border:1px solid #d0d0d0;padding:6px 10px;text-align:left;vertical-align:top";
+function isTableDivider(line) {
+  return /^\|?[\s:|-]+\|[\s:|-]*$/.test(line) && line.includes("-");
+}
+function splitRow(line) {
+  return line.replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim());
+}
+function markdownToHtml(markdown) {
+  const lines = markdown.replace(/\r\n?/g, "\n").split("\n");
+  const html = [];
+  let paragraph = [];
+  const flushParagraph = () => {
+    if (paragraph.length === 0) return;
+    html.push(`<p>${paragraph.join("<br>")}</p>`);
+    paragraph = [];
+  };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed === "") {
+      flushParagraph();
+      continue;
+    }
+    if (/^```/.test(trimmed)) {
+      flushParagraph();
+      const code = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i].trim())) {
+        code.push(escapeHtml(lines[i]));
+        i++;
+      }
+      html.push(
+        `<pre style="background:#f2f2f2;padding:10px;border-radius:4px;white-space:pre-wrap"><code>${code.join("\n")}</code></pre>`
+      );
+      continue;
+    }
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+      flushParagraph();
+      html.push('<hr style="border:0;border-top:1px solid #ddd">');
+      continue;
+    }
+    if (trimmed.includes("|") && i + 1 < lines.length && isTableDivider(lines[i + 1].trim())) {
+      flushParagraph();
+      const head = splitRow(trimmed);
+      i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].trim().includes("|")) {
+        rows.push(splitRow(lines[i].trim()));
+        i++;
+      }
+      i--;
+      const headHtml = head.map(
+        (cell) => `<th style="${CELL_STYLE};background:#f7f7f7">${renderInline(
+          escapeHtml(cell)
+        )}</th>`
+      ).join("");
+      const bodyHtml = rows.map(
+        (row) => `<tr>${row.map(
+          (cell) => `<td style="${CELL_STYLE}">${renderInline(
+            escapeHtml(cell)
+          )}</td>`
+        ).join("")}</tr>`
+      ).join("");
+      html.push(
+        `<table style="border-collapse:collapse;margin:8px 0"><thead><tr>${headHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`
+      );
+      continue;
+    }
+    const heading = /^(#{1,6})\s+(.*)$/.exec(trimmed);
+    if (heading) {
+      flushParagraph();
+      html.push(
+        `<div style="margin:14px 0 4px"><strong>${renderInline(
+          escapeHtml(heading[2])
+        )}</strong></div>`
+      );
+      continue;
+    }
+    const bullet = /^[-*]\s+(.*)$/.exec(trimmed);
+    const ordered = /^\d+[.)]\s+(.*)$/.exec(trimmed);
+    if (bullet || ordered) {
+      flushParagraph();
+      const tag = bullet ? "ul" : "ol";
+      const items = [];
+      while (i < lines.length) {
+        const item = lines[i].trim();
+        const match = bullet ? /^[-*]\s+(.*)$/.exec(item) : /^\d+[.)]\s+(.*)$/.exec(item);
+        if (!match) break;
+        items.push(
+          `<li style="margin:2px 0">${renderInline(
+            escapeHtml(match[1])
+          )}</li>`
+        );
+        i++;
+      }
+      i--;
+      html.push(
+        `<${tag} style="margin:6px 0;padding-left:22px">${items.join("")}</${tag}>`
+      );
+      continue;
+    }
+    paragraph.push(renderInline(escapeHtml(line.trim())));
+  }
+  flushParagraph();
+  return html.join("\n");
+}
+
 // src/token.ts
 var encoder = new TextEncoder();
 async function hmacHex(secret, message) {
@@ -581,7 +708,8 @@ async function handleNoteAction(request, env) {
   }
   const authErr = await authorizeTicketAction(request, env, ticketId);
   if (authErr) return authErr;
-  const result = await createPrivateNote(env, ticketId, noteBody);
+  const html = body.format === "html" ? noteBody : markdownToHtml(noteBody);
+  const result = await createPrivateNote(env, ticketId, html);
   return json({ ok: true, ticket_id: ticketId, result });
 }
 async function handleUpdateTicketAction(request, env) {
