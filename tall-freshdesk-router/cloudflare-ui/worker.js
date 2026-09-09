@@ -9,9 +9,14 @@ function tokenVarForPhase(phase) {
       return "CURSOR_TOKEN_REOPENED_NUDGE";
   }
 }
+function normalizeToken(raw) {
+  if (!raw) return void 0;
+  const token = raw.trim().replace(/^Authorization\s*:\s*/i, "").replace(/^Bearer\s+/i, "").trim();
+  return token || void 0;
+}
 function tokenForPhase(env, phase) {
   const scoped = phase === "plan" ? env.CURSOR_TOKEN_PLAN : phase === "implement" ? env.CURSOR_TOKEN_IMPLEMENT : env.CURSOR_TOKEN_REOPENED_NUDGE;
-  return scoped || env.CURSOR_WEBHOOK_SECRET;
+  return normalizeToken(scoped) || normalizeToken(env.CURSOR_WEBHOOK_SECRET);
 }
 async function forwardToCursor(env, webhookUrl, payload) {
   if (!webhookUrl || webhookUrl.includes("REPLACE_WITH_")) {
@@ -528,6 +533,30 @@ var index_default = {
         ok: true,
         service: "tall-freshdesk-router",
         io_mode: "worker"
+      });
+    }
+    if (request.method === "GET" && url.pathname === "/diag") {
+      const authErr = requireActionAuth(request, env);
+      if (authErr) return authErr;
+      const shape = (raw) => {
+        if (!raw) return { set: false };
+        const token = normalizeToken(raw);
+        return {
+          set: true,
+          had_prefix: token !== raw.trim(),
+          looks_like_cursor_token: Boolean(token?.startsWith("crsr_")),
+          length: token?.length ?? 0
+        };
+      };
+      return json({
+        freshdesk_api_key: Boolean(env.FRESHDESK_API_KEY),
+        freshdesk_domain: env.FRESHDESK_DOMAIN || null,
+        cursor_token_plan: shape(env.CURSOR_TOKEN_PLAN),
+        cursor_token_implement: shape(env.CURSOR_TOKEN_IMPLEMENT),
+        cursor_token_reopened_nudge: shape(env.CURSOR_TOKEN_REOPENED_NUDGE),
+        router_action_secret: Boolean(env.ROUTER_ACTION_SECRET),
+        legacy_cursor_webhook_secret: Boolean(env.CURSOR_WEBHOOK_SECRET),
+        webhook_shared_secret: Boolean(env.WEBHOOK_SHARED_SECRET)
       });
     }
     try {

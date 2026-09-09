@@ -12,6 +12,21 @@ export function tokenVarForPhase(phase: CursorPhase): string {
   }
 }
 
+/**
+ * Cursor's "Copy auth header" button yields `Authorization: Bearer crsr_…`, so
+ * the stored secret often carries one or both prefixes. Sending those through
+ * unchanged produces `Bearer Bearer crsr_…` and a confusing "Invalid API key".
+ */
+export function normalizeToken(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const token = raw
+    .trim()
+    .replace(/^Authorization\s*:\s*/i, "")
+    .replace(/^Bearer\s+/i, "")
+    .trim();
+  return token || undefined;
+}
+
 export function tokenForPhase(
   env: Env,
   phase: CursorPhase
@@ -23,7 +38,7 @@ export function tokenForPhase(
         ? env.CURSOR_TOKEN_IMPLEMENT
         : env.CURSOR_TOKEN_REOPENED_NUDGE;
 
-  return scoped || env.CURSOR_WEBHOOK_SECRET;
+  return normalizeToken(scoped) || normalizeToken(env.CURSOR_WEBHOOK_SECRET);
 }
 
 export async function forwardToCursor(

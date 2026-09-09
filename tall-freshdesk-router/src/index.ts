@@ -1,4 +1,4 @@
-import { forwardToCursor, webhookForPhase } from "./cursor.ts";
+import { forwardToCursor, normalizeToken, webhookForPhase } from "./cursor.ts";
 import {
   createPrivateNote,
   fetchConversations,
@@ -360,6 +360,36 @@ export default {
         ok: true,
         service: "tall-freshdesk-router",
         io_mode: "worker",
+      });
+    }
+
+    // Which secrets the Worker can actually see. Presence only, never values.
+    if (request.method === "GET" && url.pathname === "/diag") {
+      const authErr = requireActionAuth(request, env);
+      if (authErr) return authErr;
+
+      // Shape only - enough to spot a pasted "Bearer " prefix or a truncated
+      // token without disclosing the value itself.
+      const shape = (raw: string | undefined) => {
+        if (!raw) return { set: false };
+        const token = normalizeToken(raw);
+        return {
+          set: true,
+          had_prefix: token !== raw.trim(),
+          looks_like_cursor_token: Boolean(token?.startsWith("crsr_")),
+          length: token?.length ?? 0,
+        };
+      };
+
+      return json({
+        freshdesk_api_key: Boolean(env.FRESHDESK_API_KEY),
+        freshdesk_domain: env.FRESHDESK_DOMAIN || null,
+        cursor_token_plan: shape(env.CURSOR_TOKEN_PLAN),
+        cursor_token_implement: shape(env.CURSOR_TOKEN_IMPLEMENT),
+        cursor_token_reopened_nudge: shape(env.CURSOR_TOKEN_REOPENED_NUDGE),
+        router_action_secret: Boolean(env.ROUTER_ACTION_SECRET),
+        legacy_cursor_webhook_secret: Boolean(env.CURSOR_WEBHOOK_SECRET),
+        webhook_shared_secret: Boolean(env.WEBHOOK_SHARED_SECRET),
       });
     }
 
