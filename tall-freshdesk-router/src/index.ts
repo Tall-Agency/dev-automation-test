@@ -1,4 +1,5 @@
 import { forwardToCursor, normalizeToken, webhookForPhase } from "./cursor.ts";
+import { mintActionToken, verifyActionToken } from "./token.ts";
 import {
   createPrivateNote,
   fetchConversations,
@@ -60,16 +61,67 @@ function parseEvent(body: IncomingBody): IncomingEvent | null {
   return null;
 }
 
-/** Auth for Cursor → Worker action endpoints (and optional Freshdesk inbound). */
-function requireActionAuth(request: Request, env: Env): Response | null {
-  // Trimmed on both sides: these values are pasted by hand, and a trailing
-  // newline is invisible but fails as a flat 401.
-  const secret = (
+/**
+ * Secret backing both the shared action secret and per-ticket token signing.
+ * Trimmed because these values are pasted by hand between three places, and a
+ * trailing newline is invisible but fails as a flat 401.
+ */
+function actionSecret(env: Env): string {
+  return (
     env.ROUTER_ACTION_SECRET ||
     env.CURSOR_WEBHOOK_SECRET ||
     env.WEBHOOK_SHARED_SECRET ||
     ""
   ).trim();
+}
+
+/** Presented credential, from either header style. */
+function presentedCredential(request: Request): string {
+  const auth = request.headers.get("Authorization") || "";
+  if (auth.startsWith("Bearer ")) return auth.slice(7).trim();
+  return (
+    request.headers.get("X-Tall-Action-Secret") ||
+    request.headers.get("X-Tall-Webhook-Secret") ||
+    ""
+  ).trim();
+}
+
+/**
+ * Authorize a write against one ticket. Accepts the per-ticket action token from
+ * the webhook payload, or the shared secret for manual calls.
+ */
+async function authorizeTicketAction(
+  request: Request,
+  env: Env,
+  ticketId: number
+): Promise<Response | null> {
+  const secret = actionSecret(env);
+  if (!secret) {
+    return json({ error: "missing_env", need: ["ROUTER_ACTION_SECRET"] }, 500);
+  }
+
+  const presented = presentedCredential(request);
+  if (!presented) return json({ error: "unauthorized" }, 401);
+  if (presented === secret) return null;
+
+  const check = await verifyActionToken(secret, presented);
+  if (check.ok && check.ticketId === ticketId) return null;
+
+  return json(
+    {
+      error: "unauthorized",
+      detail: check.ok
+        ? "action token is for a different ticket"
+        : `action token ${check.reason}`,
+      hint: "Use worker.action_token from the webhook payload for this ticket.",
+    },
+    401
+  );
+}
+
+/** Auth for endpoints with no ticket context, e.g. /diag. */
+function requireActionAuth(request: Request, env: Env): Response | null {
+  const secret = actionSecret(env);
   if (!secret) {
     return json(
       {
@@ -240,7 +292,8 @@ async function handleWebhook(
       actions_base_url: `${origin}/actions`,
       note_path: "/actions/note",
       update_ticket_path: "/actions/update-ticket",
-      auth: "Authorization: Bearer <FRESHDESK_ROUTER_SECRET>",
+      auth: "Authorization: Bearer <action_token>",
+      action_token: await mintActionToken(actionSecret(env), ticketId),
     },
   };
 
@@ -304,9 +357,6 @@ async function handleNoteAction(
   request: Request,
   env: Env
 ): Promise<Response> {
-  const authErr = requireActionAuth(request, env);
-  if (authErr) return authErr;
-
   let body: NoteActionBody;
   try {
     body = (await request.json()) as NoteActionBody;
@@ -320,6 +370,9 @@ async function handleNoteAction(
     return json({ error: "ticket_id and body required" }, 400);
   }
 
+  const authErr = await authorizeTicketAction(request, env, ticketId);
+  if (authErr) return authErr;
+
   const result = await createPrivateNote(env, ticketId, noteBody);
   return json({ ok: true, ticket_id: ticketId, result });
 }
@@ -328,9 +381,6 @@ async function handleUpdateTicketAction(
   request: Request,
   env: Env
 ): Promise<Response> {
-  const authErr = requireActionAuth(request, env);
-  if (authErr) return authErr;
-
   let body: UpdateActionBody;
   try {
     body = (await request.json()) as UpdateActionBody;
@@ -342,6 +392,9 @@ async function handleUpdateTicketAction(
   if (!ticketId) {
     return json({ error: "ticket_id required" }, 400);
   }
+
+  const authErr = await authorizeTicketAction(request, env, ticketId);
+  if (authErr) return authErr;
 
   const update: TicketUpdate = {};
   if (body.status !== undefined) update.status = body.status;

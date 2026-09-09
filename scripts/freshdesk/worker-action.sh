@@ -3,7 +3,8 @@
 #
 # Usage:
 #   export FRESHDESK_ROUTER_URL="https://tall-freshdesk-router.<account>.workers.dev"
-#   export FRESHDESK_ROUTER_SECRET="..."   # same as Worker CURSOR_WEBHOOK_SECRET
+#   export FRESHDESK_ACTION_TOKEN="..."    # worker.action_token from the payload
+#   export FRESHDESK_ROUTER_SECRET="..."   # or the Worker ROUTER_ACTION_SECRET
 #
 #   scripts/freshdesk/worker-action.sh note 12345 "Private note body"
 #   scripts/freshdesk/worker-action.sh update 12345 '{"status":3,"tags":["cursor-todo"]}'
@@ -29,9 +30,13 @@ if [[ -z "${FRESHDESK_ROUTER_URL:-}" ]]; then
   exit 1
 fi
 
-if [[ -z "${FRESHDESK_ROUTER_SECRET:-}" ]]; then
-  echo "FRESHDESK_ROUTER_SECRET is unset. It is a Cloud Agents secret on cursor.com;" >&2
-  echo "check it exists, is a runtime secret, and is scoped to this repo." >&2
+# Prefer the per-ticket token from the webhook payload (worker.action_token).
+# It needs no configuration, so it cannot drift like a shared secret.
+CREDENTIAL="${FRESHDESK_ACTION_TOKEN:-${FRESHDESK_ROUTER_SECRET:-}}"
+
+if [[ -z "$CREDENTIAL" ]]; then
+  echo "No credential. Export FRESHDESK_ACTION_TOKEN from the webhook payload's" >&2
+  echo "worker.action_token, or set FRESHDESK_ROUTER_SECRET for manual calls." >&2
   exit 1
 fi
 
@@ -46,7 +51,7 @@ case "$ACTION" in
     # JSON-escape body via node for safety
     BODY_JSON=$(node -e 'console.log(JSON.stringify({ticket_id:Number(process.argv[1]),body:process.argv[2]}))' "$TICKET_ID" "$PAYLOAD")
     curl -sS -X POST "$BASE/actions/note" \
-      -H "Authorization: Bearer $FRESHDESK_ROUTER_SECRET" \
+      -H "Authorization: Bearer $CREDENTIAL" \
       -H "Content-Type: application/json" \
       -d "$BODY_JSON"
     echo
@@ -58,7 +63,7 @@ case "$ACTION" in
     fi
     BODY_JSON=$(node -e 'const u=JSON.parse(process.argv[2]); u.ticket_id=Number(process.argv[1]); console.log(JSON.stringify(u))' "$TICKET_ID" "$PAYLOAD")
     curl -sS -X POST "$BASE/actions/update-ticket" \
-      -H "Authorization: Bearer $FRESHDESK_ROUTER_SECRET" \
+      -H "Authorization: Bearer $CREDENTIAL" \
       -H "Content-Type: application/json" \
       -d "$BODY_JSON"
     echo

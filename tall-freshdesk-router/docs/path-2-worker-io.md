@@ -27,8 +27,10 @@ token for implement fails with `missing required scope: automation:<id>`.
 From automation / agent shell:
 
 ```bash
-export FRESHDESK_ROUTER_SECRET="..."   # same as Worker ROUTER_ACTION_SECRET
+export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"
+# Per-ticket, expires in 24h, and needs nothing configured on the agent side.
 # FRESHDESK_ROUTER_URL is optional - falls back to config.worker.base_url
+# FRESHDESK_ROUTER_SECRET only applies to manual calls outside a webhook run.
 
 # Private note
 sh scripts/freshdesk/worker-action.sh note 12345 "$(cat <<'EOF'
@@ -62,7 +64,7 @@ Confirm under Freshdesk Admin → Ticket Statuses if customised. Store overrides
 3. Paste Cursor webhook URLs into `site-registry.json`
 4. Freshdesk automation rules → Worker `/webhook` (see [freshdesk-admin.md](freshdesk-admin.md))
 5. Create Cursor Automations from `tall-dev-freshdesk-*.yaml` (BugHerd + git only; no Freshdesk MCP)
-6. Put `FRESHDESK_ROUTER_URL` + `FRESHDESK_ROUTER_SECRET` where cloud agents can read them (team secrets / documented env)
+6. Nothing to configure for agents - each payload carries `worker.action_token` for its own ticket
 
 ## What Cursor still uses MCP for
 

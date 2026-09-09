@@ -111,8 +111,8 @@ Adjust status IDs in [config.json](config.json) for your Freshdesk account.
 ## Worker write-back quick reference
 
 ```bash
-export FRESHDESK_ROUTER_URL="https://YOUR_WORKER.workers.dev"
-export FRESHDESK_ROUTER_SECRET="..."
+# Per-ticket token from the webhook payload. Nothing to configure.
+export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"
 
 sh scripts/freshdesk/worker-action.sh note <ticket_id> "<private note body>"
 sh scripts/freshdesk/worker-action.sh update <ticket_id> '{"status":3,"tags":["cursor-todo"]}'

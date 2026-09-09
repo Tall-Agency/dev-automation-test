@@ -48,6 +48,50 @@ function webhookForPhase(repo, phase) {
   return repo.cursor_webhooks[phase];
 }
 
+// src/token.ts
+var encoder = new TextEncoder();
+async function hmacHex(secret, message) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function constantTimeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+var DEFAULT_TOKEN_TTL_SECONDS = 86400;
+async function mintActionToken(secret, ticketId, ttlSeconds = DEFAULT_TOKEN_TTL_SECONDS, nowSeconds = Math.floor(Date.now() / 1e3)) {
+  const exp = nowSeconds + ttlSeconds;
+  const body = `${ticketId}.${exp}`;
+  return `${body}.${await hmacHex(secret, body)}`;
+}
+async function verifyActionToken(secret, token, nowSeconds = Math.floor(Date.now() / 1e3)) {
+  const parts = token.trim().split(".");
+  if (parts.length !== 3) return { ok: false, reason: "malformed" };
+  const [ticketPart, expPart, sig] = parts;
+  const ticketId = Number(ticketPart);
+  const exp = Number(expPart);
+  if (!Number.isInteger(ticketId) || !Number.isInteger(exp)) {
+    return { ok: false, reason: "malformed" };
+  }
+  const expected = await hmacHex(secret, `${ticketPart}.${expPart}`);
+  if (!constantTimeEqual(sig, expected)) {
+    return { ok: false, reason: "bad_signature" };
+  }
+  if (exp <= nowSeconds) return { ok: false, reason: "expired" };
+  return { ok: true, ticketId };
+}
+
 // site-registry.json
 var site_registry_default = {
   freshdesk_fields: {
@@ -286,8 +330,35 @@ function parseEvent(body) {
   }
   return null;
 }
+function actionSecret(env) {
+  return (env.ROUTER_ACTION_SECRET || env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET || "").trim();
+}
+function presentedCredential(request) {
+  const auth = request.headers.get("Authorization") || "";
+  if (auth.startsWith("Bearer ")) return auth.slice(7).trim();
+  return (request.headers.get("X-Tall-Action-Secret") || request.headers.get("X-Tall-Webhook-Secret") || "").trim();
+}
+async function authorizeTicketAction(request, env, ticketId) {
+  const secret = actionSecret(env);
+  if (!secret) {
+    return json({ error: "missing_env", need: ["ROUTER_ACTION_SECRET"] }, 500);
+  }
+  const presented = presentedCredential(request);
+  if (!presented) return json({ error: "unauthorized" }, 401);
+  if (presented === secret) return null;
+  const check = await verifyActionToken(secret, presented);
+  if (check.ok && check.ticketId === ticketId) return null;
+  return json(
+    {
+      error: "unauthorized",
+      detail: check.ok ? "action token is for a different ticket" : `action token ${check.reason}`,
+      hint: "Use worker.action_token from the webhook payload for this ticket."
+    },
+    401
+  );
+}
 function requireActionAuth(request, env) {
-  const secret = (env.ROUTER_ACTION_SECRET || env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET || "").trim();
+  const secret = actionSecret(env);
   if (!secret) {
     return json(
       {
@@ -429,7 +500,8 @@ async function handleWebhook(request, env, dryRun) {
       actions_base_url: `${origin}/actions`,
       note_path: "/actions/note",
       update_ticket_path: "/actions/update-ticket",
-      auth: "Authorization: Bearer <FRESHDESK_ROUTER_SECRET>"
+      auth: "Authorization: Bearer <action_token>",
+      action_token: await mintActionToken(actionSecret(env), ticketId)
     }
   };
   const webhookUrl = webhookForPhase(resolved.repo, phase);
@@ -486,8 +558,6 @@ async function handleWebhook(request, env, dryRun) {
   }
 }
 async function handleNoteAction(request, env) {
-  const authErr = requireActionAuth(request, env);
-  if (authErr) return authErr;
   let body;
   try {
     body = await request.json();
@@ -499,12 +569,12 @@ async function handleNoteAction(request, env) {
   if (!ticketId || !noteBody) {
     return json({ error: "ticket_id and body required" }, 400);
   }
+  const authErr = await authorizeTicketAction(request, env, ticketId);
+  if (authErr) return authErr;
   const result = await createPrivateNote(env, ticketId, noteBody);
   return json({ ok: true, ticket_id: ticketId, result });
 }
 async function handleUpdateTicketAction(request, env) {
-  const authErr = requireActionAuth(request, env);
-  if (authErr) return authErr;
   let body;
   try {
     body = await request.json();
@@ -515,6 +585,8 @@ async function handleUpdateTicketAction(request, env) {
   if (!ticketId) {
     return json({ error: "ticket_id required" }, 400);
   }
+  const authErr = await authorizeTicketAction(request, env, ticketId);
+  if (authErr) return authErr;
   const update = {};
   if (body.status !== void 0) update.status = body.status;
   if (body.priority !== void 0) update.priority = body.priority;

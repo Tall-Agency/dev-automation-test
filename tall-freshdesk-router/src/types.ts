@@ -132,6 +132,11 @@ export interface EnrichedCursorPayload {
     actions_base_url: string;
     note_path: "/actions/note";
     update_ticket_path: "/actions/update-ticket";
-    auth: "Authorization: Bearer <FRESHDESK_ROUTER_SECRET>";
+    auth: string;
+    /**
+     * Bearer token for this ticket only. Use this instead of a configured
+     * secret - it needs nothing set up on the agent side.
+     */
+    action_token: string;
   };
 }

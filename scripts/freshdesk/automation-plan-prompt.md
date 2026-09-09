@@ -25,8 +25,9 @@ Read `.cursor/skills/freshdesk/config.json`.
 ## Actions (via Worker)
 
 ```bash
-export FRESHDESK_ROUTER_SECRET   # Cloud Agents secret; the only value that must be injected
+export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"   # per-ticket; no setup needed
 # FRESHDESK_ROUTER_URL is optional - the script falls back to config.worker.base_url
+# FRESHDESK_ROUTER_SECRET is only a fallback for manual calls outside a webhook run
 
 sh scripts/freshdesk/worker-action.sh note <ticket_id> "<plan body ending with (via Cursor — plan)>"
 sh scripts/freshdesk/worker-action.sh update <ticket_id> '{"status":3,"tags":["cursor-todo"]}'

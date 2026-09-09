@@ -16,11 +16,13 @@ Repo: **Tall-Agency/dev-automation-test**. Website URL: **https://talldevstg.wpe
 
 ## Setup order
 
-1. Deploy Worker (`tall-freshdesk-router`) with `FRESHDESK_DOMAIN=help.tall.agency`.
+1. Deploy Worker (`tall-freshdesk-router`) with `FRESHDESK_DOMAIN=tall-help.freshdesk.com`.
 2. Create Automations from the three `tall-dev-freshdesk-*.yaml` files (BugHerd + git only).
 3. Paste webhook URLs into `site-registry.json`; redeploy Worker.
 4. Point Freshdesk rules at Worker `/webhook`.
-5. Provide agents `FRESHDESK_ROUTER_URL` + `FRESHDESK_ROUTER_SECRET`.
+5. Set one Worker token per automation (`CURSOR_TOKEN_PLAN`, `CURSOR_TOKEN_IMPLEMENT`,
+   `CURSOR_TOKEN_REOPENED_NUDGE`) - Cursor scopes each token to a single automation.
+   Agents need nothing: they write back with `worker.action_token` from the payload.
 
 Keep `implement_automation.dry_run: true` until classification looks right.
 
