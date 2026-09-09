@@ -14,8 +14,24 @@ ACTION="${1:-}"
 TICKET_ID="${2:-}"
 PAYLOAD="${3:-}"
 
-if [[ -z "${FRESHDESK_ROUTER_URL:-}" || -z "${FRESHDESK_ROUTER_SECRET:-}" ]]; then
-  echo "Set FRESHDESK_ROUTER_URL and FRESHDESK_ROUTER_SECRET" >&2
+CONFIG=".cursor/skills/freshdesk/config.json"
+
+# Only the secret has to be injected; the router URL is public and lives in config.
+if [[ -z "${FRESHDESK_ROUTER_URL:-}" && -f "$CONFIG" ]]; then
+  FRESHDESK_ROUTER_URL=$(node -e '
+    const c = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+    process.stdout.write((c.worker && c.worker.base_url) || "");
+  ' "$CONFIG" 2>/dev/null || true)
+fi
+
+if [[ -z "${FRESHDESK_ROUTER_URL:-}" ]]; then
+  echo "FRESHDESK_ROUTER_URL is unset and worker.base_url is missing from $CONFIG" >&2
+  exit 1
+fi
+
+if [[ -z "${FRESHDESK_ROUTER_SECRET:-}" ]]; then
+  echo "FRESHDESK_ROUTER_SECRET is unset. It is a Cloud Agents secret on cursor.com;" >&2
+  echo "check it exists, is a runtime secret, and is scoped to this repo." >&2
   exit 1
 fi
 
