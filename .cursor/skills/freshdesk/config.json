@@ -54,7 +54,7 @@
     "never_commit_to_deploy_branch": true
   },
   "implement_automation": {
-    "dry_run": true,
+    "dry_run": false,
     "max_review_loops": 3,
     "max_tickets_per_run": 1,
     "base_branch": "main",
@@ -82,7 +82,7 @@
     "capture_staging": "scripts/bugherd/capture-staging-screenshot.mjs"
   },
   "automation": {
-    "schedule_cron": "*/10 * * * *",
+    "trigger": "webhook",
     "io_mode": "worker",
     "mcp_servers": ["BugHerd"],
     "phase1_reopened": {

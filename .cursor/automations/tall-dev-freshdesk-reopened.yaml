@@ -5,8 +5,6 @@ description: >-
 workflow:
   triggers:
     - webhook: {}
-    - cron:
-        cron: "*/10 * * * *"
   actions:
     - mcp:
         server:
