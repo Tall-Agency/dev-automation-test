@@ -87,6 +87,16 @@ export interface Env {
   FRESHDESK_API_KEY: string;
   /** e.g. help.tall.agency or subdomain.freshdesk.com */
   FRESHDESK_DOMAIN: string;
+  /**
+   * Cursor automation tokens are scoped to a single automation, so each phase
+   * needs its own. A token for the plan automation cannot trigger implement.
+   */
+  CURSOR_TOKEN_PLAN?: string;
+  CURSOR_TOKEN_IMPLEMENT?: string;
+  CURSOR_TOKEN_REOPENED_NUDGE?: string;
+  /** Shared secret agents use to call /actions/*. Not a Cursor token. */
+  ROUTER_ACTION_SECRET?: string;
+  /** Legacy single-token fallback for all of the above. */
   CURSOR_WEBHOOK_SECRET?: string;
   WEBHOOK_SHARED_SECRET?: string;
   SITE_REGISTRY?: KVNamespace;

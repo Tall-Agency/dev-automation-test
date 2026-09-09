@@ -63,11 +63,25 @@ npm test
 ```bash
 npx wrangler secret put FRESHDESK_API_KEY
 npx wrangler secret put FRESHDESK_DOMAIN          # tall-help.freshdesk.com
-npx wrangler secret put CURSOR_WEBHOOK_SECRET     # Cursor forward + /actions/* auth
 npx wrangler secret put WEBHOOK_SHARED_SECRET     # optional inbound Freshdesk auth
+
+# One token per automation - Cursor scopes each token to a single automation,
+# so the plan token cannot trigger implement. Use "Copy auth header" on each
+# automation and paste the crsr_… value without the "Bearer " prefix.
+npx wrangler secret put CURSOR_TOKEN_PLAN
+npx wrangler secret put CURSOR_TOKEN_IMPLEMENT
+npx wrangler secret put CURSOR_TOKEN_REOPENED_NUDGE
+
+# Independent shared secret for agent → Worker writes. Not a Cursor token.
+npx wrangler secret put ROUTER_ACTION_SECRET
 ```
 
-Also set agent env `FRESHDESK_ROUTER_URL` + `FRESHDESK_ROUTER_SECRET` (= `CURSOR_WEBHOOK_SECRET`).
+Set the same `ROUTER_ACTION_SECRET` value as the Cloud Agents secret
+`FRESHDESK_ROUTER_SECRET` so agents can call `/actions/*`. `FRESHDESK_ROUTER_URL`
+is optional - `worker-action.sh` falls back to `worker.base_url` in the skill config.
+
+`CURSOR_WEBHOOK_SECRET` is still honoured as a fallback for all four values, but
+a single shared token cannot work once more than one automation is involved.
 ```
 
 ### Deploy

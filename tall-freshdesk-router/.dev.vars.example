@@ -1,6 +1,13 @@
 # Local secrets for wrangler dev (do not commit .dev.vars)
-
+FRESHDESK_DOMAIN=tall-help.freshdesk.com
 FRESHDESK_API_KEY=
-FRESHDESK_DOMAIN=yourcompany.freshdesk.com
-CURSOR_WEBHOOK_SECRET=
 WEBHOOK_SHARED_SECRET=
+
+# One token per Cursor automation - each token is scoped to a single automation.
+CURSOR_TOKEN_PLAN=
+CURSOR_TOKEN_IMPLEMENT=
+CURSOR_TOKEN_REOPENED_NUDGE=
+
+# Shared secret for agent -> Worker /actions/* calls. Not a Cursor token.
+# Must match the Cloud Agents secret FRESHDESK_ROUTER_SECRET.
+ROUTER_ACTION_SECRET=

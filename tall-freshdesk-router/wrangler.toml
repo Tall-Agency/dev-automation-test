@@ -12,6 +12,9 @@ account_id = "bc7ef70455e8dfb76a603471f016b627"
 #   FRESHDESK_API_KEY
 #   FRESHDESK_DOMAIN          tall-help.freshdesk.com (native host; the vanity
 #                             domain help.tall.agency does not serve the API)
-#   CURSOR_WEBHOOK_SECRET     shared auth for Cursor webhooks + /actions/*
+#   CURSOR_TOKEN_PLAN         per-automation token; Cursor scopes each token to
+#   CURSOR_TOKEN_IMPLEMENT    one automation, so these cannot be shared
+#   CURSOR_TOKEN_REOPENED_NUDGE
+#   ROUTER_ACTION_SECRET      agent -> Worker /actions/* auth (not a Cursor token)
 # Optional:
 #   WEBHOOK_SHARED_SECRET     if Freshdesk sends a shared secret header

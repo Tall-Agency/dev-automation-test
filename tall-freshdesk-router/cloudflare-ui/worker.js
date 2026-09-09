@@ -1,16 +1,34 @@
 // src/cursor.ts
+function tokenVarForPhase(phase) {
+  switch (phase) {
+    case "plan":
+      return "CURSOR_TOKEN_PLAN";
+    case "implement":
+      return "CURSOR_TOKEN_IMPLEMENT";
+    case "reopened_nudge":
+      return "CURSOR_TOKEN_REOPENED_NUDGE";
+  }
+}
+function tokenForPhase(env, phase) {
+  const scoped = phase === "plan" ? env.CURSOR_TOKEN_PLAN : phase === "implement" ? env.CURSOR_TOKEN_IMPLEMENT : env.CURSOR_TOKEN_REOPENED_NUDGE;
+  return scoped || env.CURSOR_WEBHOOK_SECRET;
+}
 async function forwardToCursor(env, webhookUrl, payload) {
   if (!webhookUrl || webhookUrl.includes("REPLACE_WITH_")) {
     throw new Error(
       `Cursor webhook URL is not configured for phase ${payload.phase} / repo ${payload.repo.github}`
     );
   }
-  const headers = {
-    "Content-Type": "application/json"
-  };
-  if (env.CURSOR_WEBHOOK_SECRET) {
-    headers.Authorization = `Bearer ${env.CURSOR_WEBHOOK_SECRET}`;
+  const token = tokenForPhase(env, payload.phase);
+  if (!token) {
+    throw new Error(
+      `No Cursor token for phase ${payload.phase}. Set ${tokenVarForPhase(payload.phase)} to that automation's auth token.`
+    );
   }
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`
+  };
   const res = await fetch(webhookUrl, {
     method: "POST",
     headers,
@@ -262,12 +280,12 @@ function parseEvent(body) {
   return null;
 }
 function requireActionAuth(request, env) {
-  const secret = env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET;
+  const secret = env.ROUTER_ACTION_SECRET || env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET;
   if (!secret) {
     return json(
       {
         error: "missing_env",
-        need: ["CURSOR_WEBHOOK_SECRET or WEBHOOK_SHARED_SECRET"]
+        need: ["ROUTER_ACTION_SECRET"]
       },
       500
     );

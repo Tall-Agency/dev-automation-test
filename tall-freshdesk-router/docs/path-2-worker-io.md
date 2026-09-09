@@ -12,17 +12,23 @@ Official Freshdesk MCP requires Enterprise EAP. Tall uses **Path 2**:
 | Secret | Where |
 |--------|--------|
 | `FRESHDESK_API_KEY` | Worker (`wrangler secret put`) |
-| `FRESHDESK_DOMAIN` | Worker - use `help.tall.agency` |
-| `CURSOR_WEBHOOK_SECRET` | Worker + Cursor agent env as `FRESHDESK_ROUTER_SECRET` |
+| `FRESHDESK_DOMAIN` | Worker - `tall-help.freshdesk.com`, not the vanity domain |
+| `CURSOR_TOKEN_PLAN` | Worker - plan automation's auth token |
+| `CURSOR_TOKEN_IMPLEMENT` | Worker - implement automation's auth token |
+| `CURSOR_TOKEN_REOPENED_NUDGE` | Worker - reopened automation's auth token |
+| `ROUTER_ACTION_SECRET` | Worker + Cloud Agents secret `FRESHDESK_ROUTER_SECRET` |
 | `WEBHOOK_SHARED_SECRET` | Optional inbound auth from Freshdesk rules |
+
+Cursor scopes an automation token to that one automation. Reusing the plan
+token for implement fails with `missing required scope: automation:<id>`.
 
 ## Agent write-back
 
 From automation / agent shell:
 
 ```bash
-export FRESHDESK_ROUTER_URL="https://YOUR_WORKER.workers.dev"
-export FRESHDESK_ROUTER_SECRET="..."   # same as CURSOR_WEBHOOK_SECRET
+export FRESHDESK_ROUTER_SECRET="..."   # same as Worker ROUTER_ACTION_SECRET
+# FRESHDESK_ROUTER_URL is optional - falls back to config.worker.base_url
 
 # Private note
 sh scripts/freshdesk/worker-action.sh note 12345 "$(cat <<'EOF'

@@ -62,12 +62,15 @@ function parseEvent(body: IncomingBody): IncomingEvent | null {
 
 /** Auth for Cursor → Worker action endpoints (and optional Freshdesk inbound). */
 function requireActionAuth(request: Request, env: Env): Response | null {
-  const secret = env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET;
+  const secret =
+    env.ROUTER_ACTION_SECRET ||
+    env.CURSOR_WEBHOOK_SECRET ||
+    env.WEBHOOK_SHARED_SECRET;
   if (!secret) {
     return json(
       {
         error: "missing_env",
-        need: ["CURSOR_WEBHOOK_SECRET or WEBHOOK_SHARED_SECRET"],
+        need: ["ROUTER_ACTION_SECRET"],
       },
       500
     );
