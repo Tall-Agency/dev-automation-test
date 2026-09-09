@@ -102,7 +102,8 @@ function requireInboundWebhookAuth(
 
 async function handleWebhook(
   request: Request,
-  env: Env
+  env: Env,
+  dryRun: boolean
 ): Promise<Response> {
   const inboundAuth = requireInboundWebhookAuth(request, env);
   if (inboundAuth) return inboundAuth;
@@ -152,6 +153,20 @@ async function handleWebhook(
 
   const resolved = resolveSiteAndRepo(registry, websiteUrl, repoField);
   if (!resolved.ok) {
+    if (dryRun) {
+      return json(
+        {
+          routed: false,
+          dry_run: true,
+          reason: resolved.code,
+          message: resolved.message,
+          website_url: websiteUrl,
+          repo_field: repoField,
+        },
+        422
+      );
+    }
+
     const noteBody = [
       "Cursor routing could not process this ticket.",
       "",
@@ -220,6 +235,32 @@ async function handleWebhook(
   };
 
   const webhookUrl = webhookForPhase(resolved.repo, phase);
+
+  if (dryRun) {
+    return json({
+      routed: true,
+      dry_run: true,
+      phase,
+      event,
+      ticket_id: ticketId,
+      github: resolved.repo.github,
+      auto_selected_repo: resolved.autoSelectedRepo,
+      website_url: resolved.websiteUrl,
+      subject: ticket.subject,
+      status: ticket.status,
+      tags: ticket.tags,
+      description_preview: (payload.freshdesk.description_text || "").slice(
+        0,
+        600
+      ),
+      conversations: conversations.map((c) => ({
+        private: c.private,
+        incoming: c.incoming,
+        body_preview: (c.body_text || "").slice(0, 300),
+      })),
+    });
+  }
+
   try {
     const result = await forwardToCursor(env, webhookUrl, payload);
     return json({
@@ -324,7 +365,10 @@ export default {
         request.method === "POST" &&
         (url.pathname === "/" || url.pathname === "/webhook")
       ) {
-        return await handleWebhook(request, env);
+        const dryRun = ["1", "true", "yes"].includes(
+          (url.searchParams.get("dry_run") || "").toLowerCase()
+        );
+        return await handleWebhook(request, env, dryRun);
       }
 
       if (request.method === "POST" && url.pathname === "/actions/note") {

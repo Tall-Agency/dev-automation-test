@@ -22,6 +22,23 @@ Freshdesk (ticket_created | note_added | ticket_reopened)
 
 On routing failure the Worker adds a **private note** and does **not** call Cursor.
 
+## Inspecting a ticket without starting an agent
+
+`POST /webhook?dry_run=1` fetches the ticket, resolves site and repo, and returns
+what the enriched payload would contain - but skips the Cursor forward, so no
+agent run starts and no private note is posted.
+
+```bash
+curl -X POST "https://<worker>/webhook?dry_run=1" \
+  -H "Content-Type: application/json" \
+  -H "X-Tall-Webhook-Secret: $WEBHOOK_SHARED_SECRET" \
+  -d '{"ticket_id":"262","event":"note_added"}'
+```
+
+Use it to check field mapping, repo routing, and which conversations the
+approval classifier will see. Agents have no Freshdesk read access under Path 2,
+so this is the only way to see a ticket as the router sees it.
+
 ## Resolution rules
 
 | Website URL | Repo | Behaviour |
@@ -45,7 +62,7 @@ npm test
 
 ```bash
 npx wrangler secret put FRESHDESK_API_KEY
-npx wrangler secret put FRESHDESK_DOMAIN          # help.tall.agency
+npx wrangler secret put FRESHDESK_DOMAIN          # tall-help.freshdesk.com
 npx wrangler secret put CURSOR_WEBHOOK_SECRET     # Cursor forward + /actions/* auth
 npx wrangler secret put WEBHOOK_SHARED_SECRET     # optional inbound Freshdesk auth
 ```
