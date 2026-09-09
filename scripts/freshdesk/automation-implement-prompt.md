@@ -26,7 +26,7 @@ If `implement_automation.dry_run` is true: classify + private note only; no code
 
 1. Branch `freshdesk/ticket-{id}` from `main`.
 2. Worker update: in-progress tags/status per config.
-3. Implement in `theme_path`; build; PR → merge `main`.
+3. Implement in `theme_path`; build; **if `dist/` changed, bump `Version:` in `web/app/themes/ai-dev/style.css`**; PR → merge `main`.
 4. Staging screenshot via BugHerd `get_project_details` + capture script when available.
 5. Private handoff note via Worker; Ready for Tall QA status/tags.
 
@@ -34,6 +34,14 @@ If `implement_automation.dry_run` is true: classify + private note only; no code
 sh scripts/freshdesk/worker-action.sh note <id> "<handoff>"
 sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-ready-qa"]}'
 ```
+
+## Asset cache
+
+The theme enqueues `dist/css/styles.css?ver={theme version}` with a one-year
+`max-age`. If the build changed anything in `dist/`, bump `Version:` in
+`web/app/themes/ai-dev/style.css` in the same commit. Without it the asset URL
+does not change, so returning visitors keep the cached file and the fix is live
+but invisible - and a hard refresh hides that from whoever checks staging.
 
 ## End of run
 

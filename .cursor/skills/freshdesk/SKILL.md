@@ -106,7 +106,15 @@ Adjust status IDs in [config.json](config.json) for your Freshdesk account.
 | Branch | `freshdesk/ticket-{id}` |
 | Base | `main` - never commit directly |
 | Theme | `web/app/themes/ai-dev/` |
+| Asset cache | Changed `dist/`? Bump `Version:` in `style.css` - see below |
 | Staging | https://talldevstg.wpenginepowered.com |
+
+Assets are enqueued as `styles.css?ver={theme version}` and served with a
+one-year `max-age`. Ship a `dist/` change without bumping `Version:` in
+`web/app/themes/ai-dev/style.css` and the URL is unchanged, so browsers and the
+CDN keep serving the old file: the fix is live but invisible to anyone who has
+visited before. Bumping the version is what makes it reach people, and it is
+easy to miss because a hard refresh hides the problem from whoever is checking.
 
 ## Worker write-back quick reference
 
