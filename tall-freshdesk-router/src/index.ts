@@ -62,10 +62,14 @@ function parseEvent(body: IncomingBody): IncomingEvent | null {
 
 /** Auth for Cursor → Worker action endpoints (and optional Freshdesk inbound). */
 function requireActionAuth(request: Request, env: Env): Response | null {
-  const secret =
+  // Trimmed on both sides: these values are pasted by hand, and a trailing
+  // newline is invisible but fails as a flat 401.
+  const secret = (
     env.ROUTER_ACTION_SECRET ||
     env.CURSOR_WEBHOOK_SECRET ||
-    env.WEBHOOK_SHARED_SECRET;
+    env.WEBHOOK_SHARED_SECRET ||
+    ""
+  ).trim();
   if (!secret) {
     return json(
       {
@@ -78,10 +82,11 @@ function requireActionAuth(request: Request, env: Env): Response | null {
 
   const auth = request.headers.get("Authorization") || "";
   const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  const headerSecret =
+  const headerSecret = (
     request.headers.get("X-Tall-Webhook-Secret") ||
     request.headers.get("X-Tall-Action-Secret") ||
-    "";
+    ""
+  ).trim();
 
   if (bearer !== secret && headerSecret !== secret) {
     return json({ error: "unauthorized" }, 401);
@@ -94,10 +99,12 @@ function requireInboundWebhookAuth(
   env: Env
 ): Response | null {
   if (!env.WEBHOOK_SHARED_SECRET) return null;
-  const provided =
+  const provided = (
     request.headers.get("X-Tall-Webhook-Secret") ||
-    request.headers.get("X-Webhook-Secret");
-  if (provided !== env.WEBHOOK_SHARED_SECRET) {
+    request.headers.get("X-Webhook-Secret") ||
+    ""
+  ).trim();
+  if (provided !== env.WEBHOOK_SHARED_SECRET.trim()) {
     return json({ error: "unauthorized" }, 401);
   }
   return null;
@@ -381,6 +388,11 @@ export default {
         };
       };
 
+      const plan = normalizeToken(env.CURSOR_TOKEN_PLAN);
+      const impl = normalizeToken(env.CURSOR_TOKEN_IMPLEMENT);
+      const nudge = normalizeToken(env.CURSOR_TOKEN_REOPENED_NUDGE);
+      const action = normalizeToken(env.ROUTER_ACTION_SECRET);
+
       return json({
         freshdesk_api_key: Boolean(env.FRESHDESK_API_KEY),
         freshdesk_domain: env.FRESHDESK_DOMAIN || null,
@@ -390,6 +402,16 @@ export default {
         router_action_secret: Boolean(env.ROUTER_ACTION_SECRET),
         legacy_cursor_webhook_secret: Boolean(env.CURSOR_WEBHOOK_SECRET),
         webhook_shared_secret: Boolean(env.WEBHOOK_SHARED_SECRET),
+        // Equality only. Catches one value pasted into several slots.
+        mistakes: {
+          all_three_tokens_identical:
+            Boolean(plan) && plan === impl && impl === nudge,
+          plan_equals_action_secret: Boolean(plan) && plan === action,
+          implement_equals_action_secret: Boolean(impl) && impl === action,
+          nudge_equals_action_secret: Boolean(nudge) && nudge === action,
+          plan_equals_legacy:
+            Boolean(plan) && plan === normalizeToken(env.CURSOR_WEBHOOK_SECRET),
+        },
       });
     }
 

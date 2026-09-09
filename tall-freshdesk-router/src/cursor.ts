@@ -24,7 +24,14 @@ export function normalizeToken(raw: string | undefined): string | undefined {
     .replace(/^Authorization\s*:\s*/i, "")
     .replace(/^Bearer\s+/i, "")
     .trim();
-  return token || undefined;
+  if (!token) return undefined;
+
+  // A Cursor token is "crsr_" plus 64 hex characters. Selecting the value out of
+  // a copied header easily drops the prefix, which fails as "Invalid API key"
+  // rather than anything that points at a missing prefix.
+  if (/^[0-9a-f]{64}$/i.test(token)) return `crsr_${token}`;
+
+  return token;
 }
 
 export function tokenForPhase(

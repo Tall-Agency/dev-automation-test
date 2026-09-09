@@ -12,7 +12,9 @@ function tokenVarForPhase(phase) {
 function normalizeToken(raw) {
   if (!raw) return void 0;
   const token = raw.trim().replace(/^Authorization\s*:\s*/i, "").replace(/^Bearer\s+/i, "").trim();
-  return token || void 0;
+  if (!token) return void 0;
+  if (/^[0-9a-f]{64}$/i.test(token)) return `crsr_${token}`;
+  return token;
 }
 function tokenForPhase(env, phase) {
   const scoped = phase === "plan" ? env.CURSOR_TOKEN_PLAN : phase === "implement" ? env.CURSOR_TOKEN_IMPLEMENT : env.CURSOR_TOKEN_REOPENED_NUDGE;
@@ -285,7 +287,7 @@ function parseEvent(body) {
   return null;
 }
 function requireActionAuth(request, env) {
-  const secret = env.ROUTER_ACTION_SECRET || env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET;
+  const secret = (env.ROUTER_ACTION_SECRET || env.CURSOR_WEBHOOK_SECRET || env.WEBHOOK_SHARED_SECRET || "").trim();
   if (!secret) {
     return json(
       {
@@ -297,7 +299,7 @@ function requireActionAuth(request, env) {
   }
   const auth = request.headers.get("Authorization") || "";
   const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  const headerSecret = request.headers.get("X-Tall-Webhook-Secret") || request.headers.get("X-Tall-Action-Secret") || "";
+  const headerSecret = (request.headers.get("X-Tall-Webhook-Secret") || request.headers.get("X-Tall-Action-Secret") || "").trim();
   if (bearer !== secret && headerSecret !== secret) {
     return json({ error: "unauthorized" }, 401);
   }
@@ -305,8 +307,8 @@ function requireActionAuth(request, env) {
 }
 function requireInboundWebhookAuth(request, env) {
   if (!env.WEBHOOK_SHARED_SECRET) return null;
-  const provided = request.headers.get("X-Tall-Webhook-Secret") || request.headers.get("X-Webhook-Secret");
-  if (provided !== env.WEBHOOK_SHARED_SECRET) {
+  const provided = (request.headers.get("X-Tall-Webhook-Secret") || request.headers.get("X-Webhook-Secret") || "").trim();
+  if (provided !== env.WEBHOOK_SHARED_SECRET.trim()) {
     return json({ error: "unauthorized" }, 401);
   }
   return null;
@@ -548,6 +550,10 @@ var index_default = {
           length: token?.length ?? 0
         };
       };
+      const plan = normalizeToken(env.CURSOR_TOKEN_PLAN);
+      const impl = normalizeToken(env.CURSOR_TOKEN_IMPLEMENT);
+      const nudge = normalizeToken(env.CURSOR_TOKEN_REOPENED_NUDGE);
+      const action = normalizeToken(env.ROUTER_ACTION_SECRET);
       return json({
         freshdesk_api_key: Boolean(env.FRESHDESK_API_KEY),
         freshdesk_domain: env.FRESHDESK_DOMAIN || null,
@@ -556,7 +562,15 @@ var index_default = {
         cursor_token_reopened_nudge: shape(env.CURSOR_TOKEN_REOPENED_NUDGE),
         router_action_secret: Boolean(env.ROUTER_ACTION_SECRET),
         legacy_cursor_webhook_secret: Boolean(env.CURSOR_WEBHOOK_SECRET),
-        webhook_shared_secret: Boolean(env.WEBHOOK_SHARED_SECRET)
+        webhook_shared_secret: Boolean(env.WEBHOOK_SHARED_SECRET),
+        // Equality only. Catches one value pasted into several slots.
+        mistakes: {
+          all_three_tokens_identical: Boolean(plan) && plan === impl && impl === nudge,
+          plan_equals_action_secret: Boolean(plan) && plan === action,
+          implement_equals_action_secret: Boolean(impl) && impl === action,
+          nudge_equals_action_secret: Boolean(nudge) && nudge === action,
+          plan_equals_legacy: Boolean(plan) && plan === normalizeToken(env.CURSOR_WEBHOOK_SECRET)
+        }
       });
     }
     try {
