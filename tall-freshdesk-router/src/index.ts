@@ -277,6 +277,10 @@ async function handleWebhook(
       description_text: ticket.description_text || ticket.description,
       custom_fields: ticket.custom_fields,
       conversations,
+      attachments: [
+        ...(ticket.attachments ?? []),
+        ...conversations.flatMap((c) => c.attachments ?? []),
+      ],
     },
     site: {
       slug: resolved.site.slug,
@@ -316,6 +320,12 @@ async function handleWebhook(
         0,
         600
       ),
+      attachments: payload.freshdesk.attachments.map((a) => ({
+        name: a.name,
+        content_type: a.content_type,
+        size: a.size,
+        has_url: Boolean(a.attachment_url),
+      })),
       conversations: conversations.map((c) => ({
         private: c.private,
         incoming: c.incoming,

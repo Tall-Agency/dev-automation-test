@@ -55,6 +55,15 @@ export interface ResolveErr {
 
 export type ResolveResult = ResolveOk | ResolveErr;
 
+export interface FreshdeskAttachment {
+  id?: number;
+  name?: string;
+  content_type?: string;
+  size?: number;
+  /** Signed and short-lived - fetch it during the run, do not store it. */
+  attachment_url?: string;
+}
+
 export interface FreshdeskConversation {
   id: number;
   body_text?: string;
@@ -66,6 +75,7 @@ export interface FreshdeskConversation {
   updated_at?: string;
   source?: number;
   from_email?: string | null;
+  attachments?: FreshdeskAttachment[];
 }
 
 export interface FreshdeskTicket {
@@ -81,6 +91,7 @@ export interface FreshdeskTicket {
   description?: string;
   created_at?: string;
   updated_at?: string;
+  attachments?: FreshdeskAttachment[];
 }
 
 export interface Env {
@@ -117,6 +128,8 @@ export interface EnrichedCursorPayload {
     description_text?: string;
     custom_fields?: Record<string, string | number | boolean | null | undefined>;
     conversations: FreshdeskConversation[];
+    /** Screenshots are common in bug reports; URLs are signed and short-lived. */
+    attachments: FreshdeskAttachment[];
   };
   site: {
     slug: string;
