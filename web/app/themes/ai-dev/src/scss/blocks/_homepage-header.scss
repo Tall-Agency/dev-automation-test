@@ -81,7 +81,6 @@
     font-size: 1.5rem;
     line-height: 1.25;
     letter-spacing: -0.03em;
-    color: var(--color-blue);
 
     p {
       margin: 0;
@@ -96,11 +95,6 @@
 
     .caption {
       position: absolute;
-      color: var(--color-blue);
-
-      .caption__icon {
-        background: var(--color-blue);
-      }
     }
 
     .caption:nth-child(1) { top: 26%; left: 0; }
