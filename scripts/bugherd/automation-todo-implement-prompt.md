@@ -63,7 +63,7 @@ Unless `dry_run` is true:
 1. Resolve branch `bugherd/task-{id}`: checkout existing remote branch or create from `main`.
 2. `update_task` → **In progress**.
 3. Implement in `web/app/themes/ai-dev/` on the **task branch only**.
-4. `npm run build` in theme directory (or `sh scripts/deployhq-build.sh`).
+4. `npm run build` in theme directory (or `sh scripts/deployhq-build.sh`). **If `dist/` changed, bump `Version:` in `web/app/themes/ai-dev/style.css` in the same commit.**
 5. Commit on task branch; push to origin.
 6. Open PR: task branch → `main`. Merge to `main` (triggers staging auto-deploy).
 7. After merge, capture staging screenshot (HTTP basic auth required — see **Staging screenshots** below) → upload attachment.
@@ -86,6 +86,14 @@ Unless `dry_run` is true:
 ```
 
 If PR merge or deploy is blocked: comment what blocked you in plain English, leave **In progress**, summarize for manual follow-up. Do not commit to `main` outside a PR merge.
+
+## Asset cache
+
+The theme enqueues `dist/css/styles.css?ver={theme version}` with a one-year
+`max-age`. If the build changed anything in `dist/`, bump `Version:` in
+`web/app/themes/ai-dev/style.css` in the same commit. Without it the asset URL
+does not change, so returning visitors keep the cached file and the fix is live
+but invisible - and a hard refresh hides that from whoever checks staging.
 
 ## Staging screenshots (HTTP basic auth)
 

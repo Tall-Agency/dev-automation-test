@@ -45,7 +45,7 @@ Staff-facing comments must be **plain English** - short, non-technical. Lead wit
 2. **Todo** - plan posted; waiting for human approval.
 3. **In progress** - `update_task` **before** coding (after approval).
 4. Implement in `web/app/themes/ai-dev/` (PHP blocks, SCSS, JS per task URL).
-5. `npm run build` in theme dir (or `scripts/deployhq-build.sh` from repo root).
+5. `npm run build` in theme dir (or `scripts/deployhq-build.sh` from repo root). **If `dist/` changed, bump `Version:` in `web/app/themes/ai-dev/style.css`.**
 6. **Git (required):** one branch per BugHerd task — `bugherd/task-{id}` from `main`. Never commit to `main` directly. Push the task branch, open a PR to `main`, merge when ready. Staging auto-deploys only when `main` is updated.
 7. After merge to `main`, wait for staging deploy, then capture screenshot (see **Staging screenshots** in SKILL / implement prompt — automations: `get_project_details` → `basic_auth_*`).
 8. Handoff:
@@ -62,7 +62,7 @@ Staff-facing comments must be **plain English** - short, non-technical. Lead wit
 - [ ] In Todo with plan? human comment approves plan (semantic review)
 - [ ] update_task → In progress
 - [ ] Branch bugherd/task-{id} from main (reuse if exists for rework)
-- [ ] Implement in ai-dev theme + npm run build on task branch only
+- [ ] Implement in ai-dev theme + npm run build on task branch only; bump `Version:` in `style.css` if `dist/` changed
 - [ ] PR to main → merge (triggers staging deploy)
 - [ ] Screenshot staging after deploy + attachment set
 - [ ] add_comment + assign requester
@@ -105,6 +105,7 @@ Loop ticks: **comments only** - never implement or change status.
 |------|----------------|
 | Task branch | `bugherd/task-{id}` from `main` — **one branch per BugHerd task** |
 | Theme build | On task branch: `cd web/app/themes/ai-dev && npm run build` or `sh scripts/deployhq-build.sh` |
+| Asset cache | If `dist/` changed, bump `Version:` in `web/app/themes/ai-dev/style.css` (same as Freshdesk) |
 | Local verify | `sh scripts/qa-homepage.sh` (optional) |
 | Deploy to staging | Merge PR into `main` only — auto-deploy runs on push to `main` |
 | Staging screenshot | `capture-staging-screenshot.mjs` — creds from `get_project_details` in automations, or `.env` locally |

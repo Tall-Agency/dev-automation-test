@@ -28,7 +28,7 @@ workflow:
 
         Git: one branch per task — bugherd/task-{id} from main. Never commit to main directly. Push task branch, PR to main, merge (staging auto-deploys on main only). Screenshot staging after merge. Reuse same branch for rework on that task.
 
-        On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, commit, push, PR to main, merge, staging screenshot via scripts/bugherd/capture-staging-screenshot.mjs (creds from get_project_details), plain-English handoff comment (Ready for Tall QA / Where to check — no Classification or branch dumps), assign requester, Ready for Tall QA.
+        On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, bump Version in style.css if dist/ changed, commit, push, PR to main, merge, staging screenshot via scripts/bugherd/capture-staging-screenshot.mjs (creds from get_project_details), plain-English handoff comment (Ready for Tall QA / Where to check — no Classification or branch dumps), assign requester, Ready for Tall QA.
 
         Staff comments: plain English, short, non-technical. Follow Writing style + handoff template in automation-todo-implement-prompt.md.
 
