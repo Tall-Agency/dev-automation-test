@@ -175,6 +175,29 @@ function markdownToHtml(markdown) {
   return html.join("\n");
 }
 
+// src/note-gate.ts
+var CURSOR_NOTE_MARKER = /via\s+Cursor/i;
+function newestConversation(conversations) {
+  if (conversations.length === 0) return null;
+  return conversations.reduce((latest, c) => {
+    const a = Date.parse(latest.created_at || "") || 0;
+    const b = Date.parse(c.created_at || "") || 0;
+    return b >= a ? c : latest;
+  });
+}
+function shouldForwardNoteAdded(conversations) {
+  const note = newestConversation(conversations);
+  if (!note) return { forward: false, reason: "no_conversations" };
+  if (note.incoming) return { forward: false, reason: "requester_note" };
+  if (note.private !== true) return { forward: false, reason: "public_note" };
+  const body = `${note.body_text || ""}
+${note.body || ""}`;
+  if (CURSOR_NOTE_MARKER.test(body)) {
+    return { forward: false, reason: "cursor_note" };
+  }
+  return { forward: true, note };
+}
+
 // src/token.ts
 var encoder = new TextEncoder();
 async function hmacHex(secret, message) {
@@ -299,6 +322,17 @@ async function fetchConversations(env, ticketId) {
     );
   }
   return await res.json();
+}
+async function fetchAutomationRules(env, typeId) {
+  const url = `${apiBase(env)}/automations/${typeId}/rules`;
+  const res = await fetch(url, { headers: authHeaders(env) });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(
+      `Freshdesk GET automation rules ${typeId} failed: ${res.status} ${body}`
+    );
+  }
+  return res.json();
 }
 async function createPrivateNote(env, ticketId, body) {
   const url = `${apiBase(env)}/tickets/${ticketId}/notes`;
@@ -547,6 +581,18 @@ async function handleWebhook(request, env, dryRun) {
   const registry = await loadRegistry(env);
   const ticket = await fetchTicket(env, ticketId);
   const conversations = await fetchConversations(env, ticketId);
+  if (event === "note_added") {
+    const gate = shouldForwardNoteAdded(conversations);
+    if (!gate.forward) {
+      return json({
+        routed: false,
+        phase,
+        ticket_id: ticketId,
+        reason: gate.reason,
+        message: gate.reason === "requester_note" ? "Ignored requester note - clients cannot trigger implement." : gate.reason === "cursor_note" ? "Ignored Cursor note - avoids agent-to-agent loops." : gate.reason === "public_note" ? "Ignored public note - approvals must be private." : "No conversations to review."
+      });
+    }
+  }
   const websiteUrl = getCustomField(
     ticket,
     registry.freshdesk_fields.website_url
@@ -746,6 +792,16 @@ var index_default = {
         service: "tall-freshdesk-router",
         io_mode: "worker"
       });
+    }
+    if (request.method === "GET" && url.pathname === "/diag/automations") {
+      const authErr = requireActionAuth(request, env);
+      if (authErr) return authErr;
+      const typeId = Number(url.searchParams.get("type") || "1");
+      try {
+        return json({ type: typeId, rules: await fetchAutomationRules(env, typeId) });
+      } catch (err) {
+        return json({ error: String(err) }, 502);
+      }
     }
     if (request.method === "GET" && url.pathname === "/diag") {
       const authErr = requireActionAuth(request, env);

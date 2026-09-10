@@ -43,17 +43,21 @@ Optional header: `X-Tall-Webhook-Secret: <WEBHOOK_SHARED_SECRET>`.
 ### 2. Note added → implement / review
 
 - **When:** Ticket is updated  
-- **Events:** Note is added (agent)  
+- **Action performed by:** **Agent or requester** (Agent-only does not fire private notes in this account)  
+- **Events:** Note is added → **Private note** (do not leave as "Any" - that saves as unset and never matches)  
+- **Condition:** none required (optional: Website URL is not blank)  
 - **Action:** Trigger Webhook  
 
 ```json
 {
-  "ticket_id": {{ticket.id}},
+  "ticket_id": "{{ticket.id}}",
   "event": "note_added"
 }
 ```
 
-The Cursor Phase 3 automation decides whether the note is an approval (same semantic review as BugHerd).
+Optional header: `X-Tall-Webhook-Secret: <WEBHOOK_SHARED_SECRET>`.
+
+The Worker then gates the call: it only forwards to Cursor when the newest note is a **staff private note** that is not marked `(via Cursor …)`. Requester notes and Cursor's own notes are acknowledged but not forwarded, so clients cannot trigger implement and agents cannot loop.
 
 ### 3. Ticket reopened → nudge (optional)
 

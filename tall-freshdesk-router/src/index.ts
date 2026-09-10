@@ -1,8 +1,10 @@
 import { forwardToCursor, normalizeToken, webhookForPhase } from "./cursor.ts";
 import { markdownToHtml } from "./markdown.ts";
+import { shouldForwardNoteAdded } from "./note-gate.ts";
 import { mintActionToken, verifyActionToken } from "./token.ts";
 import {
   createPrivateNote,
+  fetchAutomationRules,
   fetchConversations,
   fetchTicket,
   getCustomField,
@@ -210,6 +212,29 @@ async function handleWebhook(
   const registry = await loadRegistry(env);
   const ticket = await fetchTicket(env, ticketId);
   const conversations = await fetchConversations(env, ticketId);
+
+  // note_added must use "Agent or requester" in Freshdesk to fire at all, so
+  // filter here: staff private notes only, never requester or Cursor notes.
+  if (event === "note_added") {
+    const gate = shouldForwardNoteAdded(conversations);
+    if (!gate.forward) {
+      return json({
+        routed: false,
+        phase,
+        ticket_id: ticketId,
+        reason: gate.reason,
+        message:
+          gate.reason === "requester_note"
+            ? "Ignored requester note - clients cannot trigger implement."
+            : gate.reason === "cursor_note"
+              ? "Ignored Cursor note - avoids agent-to-agent loops."
+              : gate.reason === "public_note"
+                ? "Ignored public note - approvals must be private."
+                : "No conversations to review.",
+      });
+    }
+  }
+
   const websiteUrl = getCustomField(
     ticket,
     registry.freshdesk_fields.website_url
@@ -438,6 +463,23 @@ export default {
         service: "tall-freshdesk-router",
         io_mode: "worker",
       });
+    }
+
+    /**
+     * What the Freshdesk admin UI actually saved for a rule. A misconfigured
+     * rule is invisible from this side - Freshdesk just never calls - so read
+     * the rule back rather than infer it from silence.
+     */
+    if (request.method === "GET" && url.pathname === "/diag/automations") {
+      const authErr = requireActionAuth(request, env);
+      if (authErr) return authErr;
+
+      const typeId = Number(url.searchParams.get("type") || "1");
+      try {
+        return json({ type: typeId, rules: await fetchAutomationRules(env, typeId) });
+      } catch (err) {
+        return json({ error: String(err) }, 502);
+      }
     }
 
     // Which secrets the Worker can actually see. Presence only, never values.

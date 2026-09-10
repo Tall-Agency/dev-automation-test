@@ -78,6 +78,27 @@ export async function fetchConversations(
   return (await res.json()) as FreshdeskConversation[];
 }
 
+/**
+ * Freshdesk automation rules, for checking what the admin UI actually saved.
+ * Type 1 is "Ticket Creation", 3 is "Ticket Updates".
+ */
+export async function fetchAutomationRules(
+  env: Env,
+  typeId: number
+): Promise<unknown> {
+  const url = `${apiBase(env)}/automations/${typeId}/rules`;
+  const res = await fetch(url, { headers: authHeaders(env) });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(
+      `Freshdesk GET automation rules ${typeId} failed: ${res.status} ${body}`
+    );
+  }
+
+  return res.json();
+}
+
 /** Private note only - never use /reply. */
 export async function createPrivateNote(
   env: Env,
