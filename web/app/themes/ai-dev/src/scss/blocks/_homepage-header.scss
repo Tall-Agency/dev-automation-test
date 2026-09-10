@@ -81,6 +81,7 @@
     font-size: 1.5rem;
     line-height: 1.25;
     letter-spacing: -0.03em;
+    color: var(--color-blue);
 
     p {
       margin: 0;
@@ -98,8 +99,24 @@
     }
 
     .caption:nth-child(1) { top: 26%; left: 0; }
-    .caption:nth-child(2) { bottom: 36%; left: 36%; }
-    .caption:nth-child(3) { top: 22%; right: 8%; }
+    .caption:nth-child(2) {
+      bottom: 36%;
+      left: 36%;
+      color: var(--color-blue);
+
+      .caption__icon {
+        background: var(--color-blue);
+      }
+    }
+    .caption:nth-child(3) {
+      top: 22%;
+      right: 8%;
+      color: var(--color-blue);
+
+      .caption__icon {
+        background: var(--color-blue);
+      }
+    }
   }
 
   @media (max-width: 900px) {
