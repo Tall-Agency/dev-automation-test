@@ -127,11 +127,19 @@ add_filter('the_content', static function ($content) {
 }, 1);
 
 add_filter('acf/load_value', static function ($value) {
-  return ai_dev_is_wpe_host() ? ai_dev_fix_wpe_value($value) : $value;
+  if (!ai_dev_is_wpe_host()) {
+    return $value;
+  }
+
+  return ai_dev_decode_json_unicode_value(ai_dev_fix_wpe_value($value));
 }, 1);
 
 add_filter('acf/format_value', static function ($value) {
-  return ai_dev_is_wpe_host() ? ai_dev_fix_wpe_value($value) : $value;
+  if (!ai_dev_is_wpe_host()) {
+    return $value;
+  }
+
+  return ai_dev_decode_json_unicode_value(ai_dev_fix_wpe_value($value));
 }, 1);
 
 add_filter('wp_calculate_image_srcset', static function ($sources) {
