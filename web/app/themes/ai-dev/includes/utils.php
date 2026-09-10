@@ -99,18 +99,20 @@ function ai_dev_decode_json_unicode_escapes(string $value): string {
     return $value;
   }
 
-  $candidate = $value;
-  if (preg_match('/(?<!\\\\)u[0-9a-fA-F]{4}/', $value)) {
-    $candidate = preg_replace('/(?<!\\\\)u([0-9a-fA-F]{4})/', '\\u$1', $value);
-  }
+  return preg_replace_callback(
+    '/\\\\u([0-9a-fA-F]{4})|(?<!\\\\)u([0-9a-fA-F]{4})/',
+    static function (array $matches): string {
+      $hex = $matches[1] !== '' ? $matches[1] : $matches[2];
+      $code = hexdec($hex);
 
-  $decoded = json_decode('"' . str_replace(
-    array('\\', '"'),
-    array('\\\\', '\\"'),
-    $candidate
-  ) . '"');
+      if ($code === 0 || ($code >= 0xD800 && $code <= 0xDFFF)) {
+        return $matches[0];
+      }
 
-  return is_string($decoded) ? $decoded : $value;
+      return mb_chr($code, 'UTF-8');
+    },
+    $value
+  );
 }
 
 /**
