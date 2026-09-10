@@ -10,6 +10,17 @@ Interpret the latest **human private note** after the plan marker in `conversati
 
 **Max one ticket per run.**
 
+## Writing style (staff-facing notes)
+
+Tall staff read these notes in Freshdesk. Write for a busy person, not a developer.
+
+- Short sentences. Plain English.
+- Handoff notes: what changed on the site, where to look on staging, that it is ready for Tall QA.
+- Clarifying / revised-plan notes: one clear question or a short updated plan - no file paths or build steps in the main text.
+- Do **not** lead with Classification, branch names, PR numbers, CSS tokens, or commit SHAs. You may add one short "Details" line at the end (PR link only) if useful.
+- Aim for under ~120 words on handoffs.
+- End markers exactly: `(via Cursor — revised plan)`, `(via Cursor)`, or include `(via Cursor)` on handoffs.
+
 ## Dry run
 
 If `implement_automation.dry_run` is true: classify + private note only; no code.
@@ -33,6 +44,20 @@ If `implement_automation.dry_run` is true: classify + private note only; no code
 ```bash
 sh scripts/freshdesk/worker-action.sh note <id> "<handoff>"
 sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-ready-qa"]}'
+```
+
+### Handoff note template
+
+```
+## Ready for Tall QA
+{1-2 sentences: what was fixed, in plain English}
+
+## Where to check
+{staging URL or page section to look at}
+
+{optional one line: PR link only}
+
+(via Cursor)
 ```
 
 ## Asset cache

@@ -10,6 +10,17 @@ Process tasks in **Todo** with an agent plan marker. **Read and interpret** the 
 
 **Max one task per run** (`implement_automation.max_tasks_per_run`).
 
+## Writing style (staff-facing comments)
+
+Tall staff read these in BugHerd. Write for a busy person, not a developer.
+
+- Short sentences. Plain English.
+- Handoff: what changed on the site, where to look, ready for Tall QA. Tag the requester.
+- Clarifying / revised-plan comments: one clear question or a short updated plan - no file paths or build steps in the main text.
+- Do **not** lead with Classification, branch names, or commit SHAs. A single PR link at the end is fine.
+- Aim for under ~120 words on handoffs.
+- End markers exactly: `(via Cursor — revised plan)` or `(via Cursor)`.
+
 ## Git and deploy (required)
 
 Read `git` and `deploy` in config.
@@ -56,11 +67,25 @@ Unless `dry_run` is true:
 5. Commit on task branch; push to origin.
 6. Open PR: task branch → `main`. Merge to `main` (triggers staging auto-deploy).
 7. After merge, capture staging screenshot (HTTP basic auth required — see **Staging screenshots** below) → upload attachment.
-8. `add_comment` — branch name, PR link, what changed; `@` requester; `(via Cursor)`.
+8. `add_comment` using the handoff template below; `@` requester; `(via Cursor)`.
 9. `update_task_assignees` `action: "set"` → **requester**.
 10. `update_task` → **Ready for Tall QA**.
 
-If PR merge or deploy is blocked: comment what blocked you, leave **In progress**, summarize for manual follow-up. Do not commit to `main` outside a PR merge.
+### Handoff comment template
+
+```
+## Ready for Tall QA
+{1-2 sentences: what was fixed, in plain English}
+
+## Where to check
+{page / section on staging}
+
+{optional: PR link only}
+
+(via Cursor)
+```
+
+If PR merge or deploy is blocked: comment what blocked you in plain English, leave **In progress**, summarize for manual follow-up. Do not commit to `main` outside a PR merge.
 
 ## Staging screenshots (HTTP basic auth)
 

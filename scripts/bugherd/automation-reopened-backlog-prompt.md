@@ -8,6 +8,17 @@ MCP server: **BugHerd**. Read each tool schema before calling.
 
 **Comments only.** Never implement code, deploy, change task status, or change assignees.
 
+## Writing style
+
+Keep the nudge short and plain. Example:
+
+```
+Hi @{requester} - this came back from QA without a note on what still needs fixing.
+Please comment with what you still see wrong. Work is blocked until then.
+
+(via Cursor)
+```
+
 ## On each run
 
 1. `list_project_tasks` for project `527751`, status `Backlog`.

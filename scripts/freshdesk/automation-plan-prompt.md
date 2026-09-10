@@ -10,6 +10,17 @@ Read `.cursor/skills/freshdesk/config.json`.
 
 **Max one ticket per run.** Prefer webhook runs with full payload.
 
+## Writing style (staff-facing notes)
+
+Tall staff read these notes in Freshdesk. Write for a busy person, not a developer.
+
+- Short sentences. Plain English. No jargon unless you must name a UI thing the reporter will recognise.
+- Lead with what is wrong on the site and what you will change.
+- Do **not** put CSS variables, file paths, SCSS tokens, commit hashes, or branch names in the main note unless Tall asked a technical question.
+- If you need a choice (e.g. two spacing options), ask it in one clear sentence with plain labels (A / B), not token names.
+- Keep the note to a few short sections. Aim for under ~150 words.
+- Always end with the marker line exactly: `(via Cursor — plan)`
+
 ## Routing / payload
 
 1. Require webhook payload with `io_mode: "worker"`, `freshdesk.ticket_id`, `repo.github`.
@@ -37,11 +48,18 @@ Use `config.status_ids.pending` if set (default 3).
 
 ## Plan note template
 
-1. **Understanding**
-2. **Proposed fix** under `theme_path`
-3. **Verification** - branch `freshdesk/ticket-{id}`; PR → main; staging screenshot
-4. **Review ask** - Tall staff reply with a **private note**
-5. End `(via Cursor — plan)`
+```
+## What's wrong
+{1-2 sentences in plain English about what the reporter sees}
+
+## What I'll change
+{1-3 short bullets about the fix in everyday language}
+
+## Next step
+Please reply with a private note to approve, ask for a change, or say which option you want.
+
+(via Cursor — plan)
+```
 
 ## End of run
 

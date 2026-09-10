@@ -29,6 +29,8 @@ Do **not** auto-implement every Backlog ticket without the user asking (unless P
 
 ## Plan → Todo → approve → implement
 
+Staff-facing comments must be **plain English** - short, non-technical. Lead with what is wrong on the site and what will change. Keep file paths, CSS tokens, and branch names out of the main comment. Templates live in `scripts/bugherd/automation-*-prompt.md`.
+
 | Step | Status | Action |
 |------|--------|--------|
 | Plan | **Backlog** → **Todo** | `add_comment` with `(via Cursor — plan)` |

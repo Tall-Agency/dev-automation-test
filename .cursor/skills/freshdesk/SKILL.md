@@ -23,6 +23,7 @@ Config: [config.json](config.json). Router: [tall-freshdesk-router/](../../../ta
 2. **Website URL + Repo** must resolve to this repo's `github` before implementing.
 3. Tall staff communication follows the same BugHerd process (plan → review → approve → implement → QA).
 4. Do **not** require Freshdesk MCP.
+5. **Staff-facing notes are plain English** - short, non-technical. See the automation prompts for templates. Keep file paths, CSS tokens, and branch names out of the main note.
 
 ## Routing
 

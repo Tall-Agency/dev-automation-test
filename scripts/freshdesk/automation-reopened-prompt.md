@@ -4,6 +4,17 @@ Read `.cursor/skills/freshdesk/config.json`.
 
 **IO mode: Worker.** Prefer webhook payload with conversations. Writes via `scripts/freshdesk/worker-action.sh` only. Private notes only.
 
+## Writing style
+
+Keep the nudge short and plain. Example:
+
+```
+Hi - this ticket came back from QA without a note on what still needs fixing.
+Please reply with a private note describing what you still see wrong. Work is blocked until then.
+
+(via Cursor)
+```
+
 ## On each run
 
 1. Use `freshdesk.ticket_id` + `conversations` from payload when present.

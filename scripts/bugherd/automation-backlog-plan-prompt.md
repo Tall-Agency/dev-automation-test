@@ -10,6 +10,17 @@ MCP server: **BugHerd**. Read each tool schema before calling.
 
 **Max one task per run** (`plan_automation.max_tasks_per_run`).
 
+## Writing style (staff-facing comments)
+
+Tall staff read these in BugHerd. Write for a busy person, not a developer.
+
+- Short sentences. Plain English. No jargon unless naming a UI thing the reporter will recognise.
+- Lead with what is wrong on the site and what you will change.
+- Do **not** put CSS variables, file paths, SCSS tokens, commit hashes, or branch names in the main comment unless Tall asked a technical question.
+- If you need a choice, ask it in one clear sentence with plain labels (A / B).
+- Keep it short - aim for under ~150 words.
+- Always end with: `(via Cursor — plan)`
+
 ## Column name
 
 Use status **`Todo`** from config (`columns.todo`). If `update_task` fails, call `get_project_details` and use the exact `statuses[].name`.
@@ -34,13 +45,18 @@ Use status **`Todo`** from config (`columns.todo`). If `update_task` fails, call
 
 Tag the **requester** first (`@[{display_name}]({id})` when `requester.id` present).
 
-Include:
+```
+## What's wrong
+{1-2 sentences in plain English about what the reporter sees}
 
-1. **Understanding** — from task description, URL, attachments.
-2. **Proposed fix** — `web/app/themes/ai-dev/` files or blocks likely involved.
-3. **Verification** — work on branch `bugherd/task-{id}` (one branch per task); `npm run build`; PR → merge to `main` (staging auto-deploys on `main` only); screenshot `https://talldevstg.wpenginepowered.com`.
-4. **Review ask** — reply with clear approval to proceed, or describe changes.
-5. End with: `(via Cursor — plan)`
+## What I'll change
+{1-3 short bullets about the fix in everyday language}
+
+## Next step
+Please reply to approve, ask for a change, or say which option you want.
+
+(via Cursor — plan)
+```
 
 ## End of run
 
