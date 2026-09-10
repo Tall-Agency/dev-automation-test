@@ -96,27 +96,16 @@
 
     .caption {
       position: absolute;
+      color: var(--color-blue);
+
+      .caption__icon {
+        background: var(--color-blue);
+      }
     }
 
     .caption:nth-child(1) { top: 26%; left: 0; }
-    .caption:nth-child(2) {
-      bottom: 36%;
-      left: 36%;
-      color: var(--color-blue);
-
-      .caption__icon {
-        background: var(--color-blue);
-      }
-    }
-    .caption:nth-child(3) {
-      top: 22%;
-      right: 8%;
-      color: var(--color-blue);
-
-      .caption__icon {
-        background: var(--color-blue);
-      }
-    }
+    .caption:nth-child(2) { bottom: 36%; left: 36%; }
+    .caption:nth-child(3) { top: 22%; right: 8%; }
   }
 
   @media (max-width: 900px) {
