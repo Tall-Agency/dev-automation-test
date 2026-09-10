@@ -92,6 +92,50 @@ function ai_dev_fix_wpe_url(string $url): string {
 }
 
 /**
+ * Decode JSON-style \uXXXX (or broken uXXXX) unicode escapes in CMS strings.
+ */
+function ai_dev_decode_json_unicode_escapes(string $value): string {
+  if ($value === '' || !preg_match('/(?:\\\\u[0-9a-fA-F]{4}|(?<!\\\\)u[0-9a-fA-F]{4})/', $value)) {
+    return $value;
+  }
+
+  $candidate = $value;
+  if (preg_match('/(?<!\\\\)u[0-9a-fA-F]{4}/', $value)) {
+    $candidate = preg_replace('/(?<!\\\\)u([0-9a-fA-F]{4})/', '\\u$1', $value);
+  }
+
+  $decoded = json_decode('"' . str_replace(
+    array('\\', '"'),
+    array('\\\\', '\\"'),
+    $candidate
+  ) . '"');
+
+  return is_string($decoded) ? $decoded : $value;
+}
+
+/**
+ * Recursively decode unicode escapes in ACF / nested field values.
+ *
+ * @param mixed $value
+ * @return mixed
+ */
+function ai_dev_decode_json_unicode_value($value) {
+  if (is_string($value)) {
+    return ai_dev_decode_json_unicode_escapes($value);
+  }
+
+  if (!is_array($value)) {
+    return $value;
+  }
+
+  foreach ($value as $key => $item) {
+    $value[$key] = ai_dev_decode_json_unicode_value($item);
+  }
+
+  return $value;
+}
+
+/**
  * Build BEM block class string from Gutenberg block data.
  */
 function ai_dev_block_classes(string $slug, array $block, array $extra = array()): string {
