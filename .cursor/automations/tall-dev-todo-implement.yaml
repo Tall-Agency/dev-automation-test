@@ -28,7 +28,9 @@ workflow:
 
         Git: one branch per task — bugherd/task-{id} from main. Never commit to main directly. Push task branch, PR to main, merge (staging auto-deploys on main only). Screenshot staging after merge. Reuse same branch for rework on that task.
 
-        On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, commit, push, PR to main, merge, staging screenshot via scripts/bugherd/capture-staging-screenshot.mjs (STAGING_BASIC_AUTH_* from .env), handoff comment with branch/PR, assign requester, Ready for Tall QA.
+        On approve: checkout/create bugherd/task-{id}, update_task In progress, fix in web/app/themes/ai-dev on task branch only, npm run build, commit, push, PR to main, merge, staging screenshot via scripts/bugherd/capture-staging-screenshot.mjs (creds from get_project_details), plain-English handoff comment (Ready for Tall QA / Where to check — no Classification or branch dumps), assign requester, Ready for Tall QA.
+
+        Staff comments: plain English, short, non-technical. Follow Writing style + handoff template in automation-todo-implement-prompt.md.
 
         Staging screenshots (required): Automations have no .env. Call get_project_details for project 527751; use basic_auth_username and basic_auth_password. Then run:
         STAGING_BASIC_AUTH_USER=... STAGING_BASIC_AUTH_PASSWORD=... TASK_URL=<task url> OUT_FILE=.bugherd-screenshots/task-{id}-staging.png node scripts/bugherd/capture-staging-screenshot.mjs

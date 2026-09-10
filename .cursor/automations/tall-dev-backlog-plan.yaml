@@ -30,8 +30,12 @@ workflow:
         3. Skip if plan marker exists and task is already Todo.
         4. Reopened from QA: skip until explanatory comment after reopen exists (Phase 1 handles nudge).
         5. New Backlog or rework with explanatory comment: eligible.
-        6. add_comment: tag requester, Understanding, Proposed fix in web/app/themes/ai-dev, branch bugherd/task-{id} and PR→main for staging deploy, ask for approval. End (via Cursor — plan).
+        6. add_comment using the plain-English template in automation-backlog-plan-prompt.md
+           (What's wrong / What I'll change / Next step). No file paths or CSS tokens
+           in the main comment. End (via Cursor — plan).
         7. update_task status Todo (columns.todo in config).
+
+        Staff comments: plain English, short, non-technical.
 
         End summary: checked, planned task id, skipped reasons.
   model: ""

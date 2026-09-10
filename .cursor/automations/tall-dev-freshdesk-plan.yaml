@@ -26,6 +26,10 @@ workflow:
         Verify repo.github is Tall-Agency/dev-automation-test.
         Optional BugHerd enrichment only. Never public-reply. Never implement.
 
+        Staff notes: plain English, short, non-technical. Follow the Writing style
+        and plan template in automation-plan-prompt.md (no file paths / CSS tokens
+        in the main note).
+
         Max one ticket per webhook/run. End with summary.
   model: ""
   gitConfig:

@@ -27,7 +27,10 @@ workflow:
         Branch freshdesk/ticket-{id}; never commit to main directly; PR → merge main.
         Staging screenshot: BugHerd get_project_details 527751 + scripts/bugherd/capture-staging-screenshot.mjs.
 
-        Private notes only. End with summary.
+        Private notes only. Staff notes: plain English, short, non-technical.
+        Follow Writing style + handoff template in automation-implement-prompt.md.
+
+        End with summary.
   model: ""
   gitConfig:
     repo: "Tall-Agency/dev-automation-test"
