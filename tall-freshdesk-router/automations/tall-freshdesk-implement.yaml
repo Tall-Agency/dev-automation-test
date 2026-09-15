@@ -27,7 +27,11 @@ workflow:
         3. Base branch = config.git.deploy_branch (or payload.repo.default_branch).
            Never merge to production unless config explicitly says so (it must not).
         4. Theme path = config.repo.theme_path (or payload.repo.theme_path).
-           If dist/ changed, bump Version: in that theme's style.css.
+           Use only existing design tokens (grep _vars / nearby components).
+           If the request does not map to a real token, private-note a clear
+           alternative and stay Pending - never invent var(--…) names.
+           Run yarn/npm build in the theme. If DeployHQ already builds dist on
+           deploy, committing dist is optional; still never merge to production.
         5. Staging screenshot: BugHerd get_project_details for
            site.bugherd_project_id + that repo's capture script against
            site.staging_url / config.urls.staging.

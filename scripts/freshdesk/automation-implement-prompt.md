@@ -31,15 +31,32 @@ If `implement_automation.dry_run` is true: classify + private note only; no code
 
 | Intent | Action |
 |--------|--------|
-| Approve | Implement |
+| Approve | Implement **only if** the approved plan maps to real theme values (see Design tokens) |
 | Revise | Private revised plan; stay Pending; `(via Cursor — revised plan)` |
 | Unclear | Clarifying private note; stay Pending; `(via Cursor)` |
+
+## Design tokens and unknowns (hard stop)
+
+Before writing colour, spacing, or font changes:
+
+1. Look up existing theme tokens / patterns (e.g. `_vars.scss`, nearby components that already use the brand colour).
+2. **Never invent** CSS variables, class names, or “brand” values that are not already in the theme.
+3. If the ticket asks for something that does not map cleanly (e.g. “brand red” but the theme only has `--c-highlight` / `--c-orange`), **do not implement a guess**. Stay Pending and post a short private clarifying note that:
+   - says what you found in plain English (e.g. the site’s red is the existing highlight colour)
+   - offers the concrete alternative you would use
+   - asks Tall to confirm before you build
+   - ends with `(via Cursor)`
+4. Same rule for missing pages, ambiguous selectors, or anything you would have to invent: clarify on the ticket, do not ship a no-op or silent fallback.
+
+A successful build is not enough. Unknown `var(--…)` names compile fine and change nothing on the site - that counts as a failed implement.
 
 ## Implement (Approve only)
 
 1. Branch `freshdesk/ticket-{id}` from `git.deploy_branch` / `implement_automation.base_branch` (or `payload.repo.default_branch`).
 2. Worker update: in-progress tags/status per config.
-3. Implement in `repo.theme_path`; build; **if `dist/` changed, bump `Version:` in that theme's `style.css`**; PR → merge the deploy branch (never `production` unless config says so - it must not for SLA).
+3. Implement in `repo.theme_path`; run theme build (`npm run build` in the theme).
+   If `dist/` is gitignored (Tall Agency theme), **force-add the rebuilt `dist/`** (`git add -f …/dist`) so DeployHQ ships hashed CSS/JS - SCSS-only commits will not change the live site.
+   Also bump `Version:` in that theme's `style.css` when useful for any non-hashed assets; PR → merge the deploy branch (never `production` unless config says so - it must not for SLA).
 4. Staging screenshot via BugHerd `get_project_details` (project from config / `site.bugherd_project_id`) + capture script against staging URL.
 5. Private handoff note via Worker; Ready for Tall QA status/tags.
 
@@ -62,13 +79,12 @@ sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-r
 (via Cursor)
 ```
 
-## Asset cache
+## Asset cache / build output
 
-Themes often enqueue CSS with `?ver={theme version}` and a long `max-age`. If the
-build changed anything in `dist/`, bump `Version:` in the theme `style.css` in
-the same commit. Without it the asset URL does not change, so returning visitors
-keep the cached file and the fix is live but invisible - and a hard refresh hides
-that from whoever checks staging.
+This theme enqueues **hashed files from `dist/`** (see `manifest.json`), not `style.css` alone.
+`dist/` is gitignored. After `npm run build`, you **must** `git add -f web/app/themes/tall/dist` (or the site's theme `dist/`) or DeployHQ will ship old CSS and the fix looks “done” but invisible.
+
+Bumping `Version:` in `style.css` alone is not enough when enqueue uses hashed dist filenames with `ver=null`.
 
 ## End of run
 

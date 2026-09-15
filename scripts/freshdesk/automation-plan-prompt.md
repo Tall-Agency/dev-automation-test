@@ -17,7 +17,8 @@ Tall staff read these notes in Freshdesk. Write for a busy person, not a develop
 - Short sentences. Plain English. No jargon unless you must name a UI thing the reporter will recognise.
 - Lead with what is wrong on the site and what you will change.
 - Do **not** put CSS variables, file paths, SCSS tokens, commit hashes, or branch names in the main note unless Tall asked a technical question.
-- If you need a choice (e.g. two spacing options), ask it in one clear sentence with plain labels (A / B), not token names.
+- If you need a choice (e.g. two spacing options, or which existing brand colour to use), ask it in one clear sentence with plain labels (A / B), not token names.
+- If the request names a colour/style that is not an existing theme value, say so in plain English in the plan and propose the closest existing alternative for Tall to approve. Do not invent token names.
 - Keep the note to a few short sections. Aim for under ~150 words.
 - Always end with the marker line exactly: `(via Cursor — plan)`
 
