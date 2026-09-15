@@ -40,11 +40,23 @@ Plan text here
 EOF
 )"
 
+# Private note with staging screenshot attached (Freshdesk file attachment - not a hotlinked img)
+sh scripts/freshdesk/worker-action.sh note-file 12345 "$(cat <<'EOF'
+## Ready for Tall QA
+Short plain-English handoff.
+
+## Where to check
+https://staging.example/
+
+(via Cursor)
+EOF
+)" ".bugherd-screenshots/freshdesk-12345-staging.png"
+
 # Move to Pending (status 3 is default Freshdesk Pending - confirm in your account)
 sh scripts/freshdesk/worker-action.sh update 12345 '{"status":3,"tags":["cursor-todo"]}'
 ```
 
-Or raw curl using `worker.actions_base_url` from the webhook payload.
+`note-file` base64-encodes the PNG and POSTs it to Worker `/actions/note` as `attachments[]`. The Worker forwards multipart to Freshdesk so the image shows as a real note attachment.
 
 ## Freshdesk status IDs (defaults)
 

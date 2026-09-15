@@ -59,10 +59,33 @@ A successful build is not enough. Unknown `var(--…)` names compile fine and ch
    If `dist/` is gitignored (Tall Agency theme), **force-add the rebuilt `dist/`** (`git add -f …/dist`) so DeployHQ ships hashed CSS/JS - SCSS-only commits will not change the live site.
    Also bump `Version:` in that theme's `style.css` when useful for any non-hashed assets; PR → merge the deploy branch (never `production` unless config says so - it must not for SLA).
 4. Staging screenshot via BugHerd `get_project_details` (project from config / `site.bugherd_project_id`) + capture script against staging URL.
-5. Private handoff note via Worker; Ready for Tall QA status/tags.
+5. Private handoff note via Worker **with the PNG attached** (see Screenshot attachments). Do **not** hotlink BugHerd/external image URLs in the note body - Freshdesk shows a broken image.
+6. Ready for Tall QA status/tags.
 
 ```bash
-sh scripts/freshdesk/worker-action.sh note <id> "<handoff>"
+export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"
+
+# Capture (example)
+STAGING_BASIC_AUTH_USER="<from get_project_details>" \
+STAGING_BASIC_AUTH_PASSWORD="<from get_project_details>" \
+TASK_URL="<staging url>" \
+OUT_FILE=".bugherd-screenshots/freshdesk-{id}-staging.png" \
+node scripts/bugherd/capture-staging-screenshot.mjs
+
+# Handoff with real Freshdesk attachment (required for screenshots)
+sh scripts/freshdesk/worker-action.sh note-file <id> "$(cat <<'EOF'
+## Ready for Tall QA
+{1-2 sentences: what was fixed, in plain English}
+
+## Where to check
+{staging URL or page section to look at}
+
+{optional: Details: PR url}
+
+(via Cursor)
+EOF
+)" ".bugherd-screenshots/freshdesk-{id}-staging.png"
+
 sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-ready-qa"]}'
 ```
 
@@ -75,13 +98,18 @@ sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-r
 ## Where to check
 {staging URL or page section to look at}
 
-## Screenshot (staging)
-![staging]({screenshot url})
-
 {optional one line: PR link only}
 
 (via Cursor)
 ```
+
+Do **not** include a Markdown image line for the staging shot when using `note-file` - the file is a Freshdesk attachment on the note.
+
+## Screenshot attachments
+
+- Capture with `scripts/bugherd/capture-staging-screenshot.mjs`.
+- Post with `worker-action.sh note-file` so Freshdesk stores the file on the note.
+- Never rely on `![alt](https://files.bugherd.com/...)` or other hotlinks in the note body for QA evidence.
 
 ## Asset cache / build output
 

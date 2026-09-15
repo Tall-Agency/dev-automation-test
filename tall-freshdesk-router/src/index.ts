@@ -30,6 +30,15 @@ interface NoteActionBody {
   body?: string;
   /** Defaults to markdown; "html" passes the body through untouched. */
   format?: "markdown" | "html";
+  /**
+   * Optional files for Freshdesk note attachments (multipart). Prefer this over
+   * hotlinking images in the note body - Freshdesk often cannot load external img URLs.
+   */
+  attachments?: Array<{
+    filename: string;
+    content_base64: string;
+    content_type?: string;
+  }>;
 }
 
 interface UpdateActionBody {
@@ -415,8 +424,30 @@ async function handleNoteAction(
   // running markdownToHtml on HTML escapes tags and Freshdesk shows raw markup.
   const html = noteBodyToHtml(noteBody, body.format);
 
-  const result = await createPrivateNote(env, ticketId, html);
-  return json({ ok: true, ticket_id: ticketId, result });
+  const attachments = Array.isArray(body.attachments) ? body.attachments : [];
+  for (const file of attachments) {
+    if (!file?.filename || !file?.content_base64) {
+      return json(
+        { error: "invalid_attachment", need: ["filename", "content_base64"] },
+        400
+      );
+    }
+    // ~4.5MB base64 ≈ 3.3MB file - keep Worker request size sane.
+    if (file.content_base64.length > 4_500_000) {
+      return json({ error: "attachment_too_large", max_base64_chars: 4_500_000 }, 413);
+    }
+  }
+  if (attachments.length > 5) {
+    return json({ error: "too_many_attachments", max: 5 }, 400);
+  }
+
+  const result = await createPrivateNote(env, ticketId, html, attachments);
+  return json({
+    ok: true,
+    ticket_id: ticketId,
+    attachments: attachments.length,
+    result,
+  });
 }
 
 async function handleUpdateTicketAction(

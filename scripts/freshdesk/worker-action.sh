@@ -2,12 +2,12 @@
 # Call tall-freshdesk-router action endpoints (Path 2 - no Freshdesk MCP).
 #
 # Usage:
-#   export FRESHDESK_ROUTER_URL="https://tall-freshdesk-router.<account>.workers.dev"
 #   export FRESHDESK_ACTION_TOKEN="..."    # worker.action_token from the payload
-#   export FRESHDESK_ROUTER_SECRET="..."   # or the Worker ROUTER_ACTION_SECRET
+#   # optional: FRESHDESK_ROUTER_URL / FRESHDESK_ROUTER_SECRET
 #
-#   scripts/freshdesk/worker-action.sh note 12345 "Private note body"
-#   scripts/freshdesk/worker-action.sh update 12345 '{"status":3,"tags":["cursor-todo"]}'
+#   scripts/freshdesk/worker-action.sh note <ticket_id> "<markdown body>"
+#   scripts/freshdesk/worker-action.sh note-file <ticket_id> "<markdown body>" <file.png> [more files...]
+#   scripts/freshdesk/worker-action.sh update <ticket_id> '{"status":3,"tags":["cursor-todo"]}'
 #
 set -euo pipefail
 
@@ -48,8 +48,53 @@ case "$ACTION" in
       echo "Usage: $0 note <ticket_id> <note body>" >&2
       exit 1
     fi
-    # JSON-escape body via node for safety
     BODY_JSON=$(node -e 'console.log(JSON.stringify({ticket_id:Number(process.argv[1]),body:process.argv[2]}))' "$TICKET_ID" "$PAYLOAD")
+    curl -sS -X POST "$BASE/actions/note" \
+      -H "Authorization: Bearer $CREDENTIAL" \
+      -H "Content-Type: application/json" \
+      -d "$BODY_JSON"
+    echo
+    ;;
+  note-file)
+    if [[ -z "$TICKET_ID" || -z "$PAYLOAD" || -z "${4:-}" ]]; then
+      echo "Usage: $0 note-file <ticket_id> <note body> <file> [more files...]" >&2
+      exit 1
+    fi
+    shift 3
+    FILES=("$@")
+    for f in "${FILES[@]}"; do
+      if [[ ! -f "$f" ]]; then
+        echo "File not found: $f" >&2
+        exit 1
+      fi
+    done
+    BODY_JSON=$(
+      TICKET_ID="$TICKET_ID" NOTE_BODY="$PAYLOAD" node --input-type=module -e '
+        import { readFileSync } from "node:fs";
+        import { basename } from "node:path";
+        const ticketId = Number(process.env.TICKET_ID);
+        const body = process.env.NOTE_BODY;
+        const files = process.argv.slice(1);
+        const typeFor = (name) => {
+          const ext = name.split(".").pop()?.toLowerCase();
+          if (ext === "png") return "image/png";
+          if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+          if (ext === "gif") return "image/gif";
+          if (ext === "webp") return "image/webp";
+          if (ext === "pdf") return "application/pdf";
+          return "application/octet-stream";
+        };
+        const attachments = files.map((path) => {
+          const buf = readFileSync(path);
+          return {
+            filename: basename(path),
+            content_base64: buf.toString("base64"),
+            content_type: typeFor(path),
+          };
+        });
+        process.stdout.write(JSON.stringify({ ticket_id: ticketId, body, attachments }));
+      ' -- "${FILES[@]}"
+    )
     curl -sS -X POST "$BASE/actions/note" \
       -H "Authorization: Bearer $CREDENTIAL" \
       -H "Content-Type: application/json" \
@@ -69,7 +114,7 @@ case "$ACTION" in
     echo
     ;;
   *)
-    echo "Unknown action: $ACTION (use note|update)" >&2
+    echo "Unknown action: $ACTION (use note|note-file|update)" >&2
     exit 1
     ;;
 esac

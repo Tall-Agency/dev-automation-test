@@ -38,7 +38,9 @@ workflow:
 
         If dry_run true: classify + private note only.
         Branch freshdesk/ticket-{id} from the deploy branch; PR → merge deploy branch.
-        Private notes only. Plain English handoff. End with summary.
+        Private notes only. Plain English handoff. For staging screenshots use
+        scripts/freshdesk/worker-action.sh note-file (attach the PNG) - never
+        hotlink external image URLs in the note body. End with summary.
   model: ""
   agentOptions:
     skipInstall: false
