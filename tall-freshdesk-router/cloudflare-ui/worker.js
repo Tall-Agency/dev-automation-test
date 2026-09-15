@@ -760,7 +760,9 @@ async function handleNoteAction(request, env) {
   }
   const authErr = await authorizeTicketAction(request, env, ticketId);
   if (authErr) return authErr;
-  const html = body.format === "html" ? noteBody : markdownToHtml(noteBody);
+  const html = body.format === "html" || (body.format !== "markdown" && /^\s*<[a-z]/i.test(noteBody))
+    ? noteBody
+    : markdownToHtml(noteBody);
   const result = await createPrivateNote(env, ticketId, html);
   return json({ ok: true, ticket_id: ticketId, result });
 }

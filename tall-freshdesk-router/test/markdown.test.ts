@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { markdownToHtml } from "../src/markdown.ts";
+import { markdownToHtml, looksLikeHtml, noteBodyToHtml } from "../src/markdown.ts";
 
 test("headings become bold blocks, since Freshdesk strips heading tags", () => {
   const html = markdownToHtml("## Freshdesk #264 - Slider padding");
@@ -84,24 +84,27 @@ test("fenced code blocks are preserved", () => {
   assert.match(html, /<pre[^>]*><code>npm run build<\/code><\/pre>/);
 });
 
-test("the real note from ticket 264 renders as structured HTML", () => {
+test("standalone markdown images become img tags", () => {
   const html = markdownToHtml(
-    [
-      "## Freshdesk #264 - Slider padding",
-      "",
-      "### Understanding",
-      "The ticket reports excessive vertical padding around the **logo slider**.",
-      "",
-      "### Proposed fix",
-      "- **Option A (recommended):** `var(--space-xl)` - 80px",
-      "- **Option B (minimal):** `var(--space-lg)` - 48px",
-    ].join("\n")
+    "![Footer on staging](https://files.bugherd.com/example.png)"
   );
+  assert.match(
+    html,
+    /<img src="https:\/\/files\.bugherd\.com\/example\.png" alt="Footer on staging"/
+  );
+});
 
-  assert.match(html, /<strong>Freshdesk #264 - Slider padding<\/strong>/);
-  assert.match(html, /<ul/);
-  assert.equal(html.match(/<li/g)?.length, 2);
-  // The wall-of-text symptom: no raw markers left in the output.
-  assert.doesNotMatch(html, /\*\*/);
-  assert.doesNotMatch(html, /^#/m);
+test("looksLikeHtml detects agent-emitted HTML wrappers", () => {
+  assert.equal(
+    looksLikeHtml('<div><strong>Ready for Tall QA</strong></div>'),
+    true
+  );
+  assert.equal(looksLikeHtml("## Ready for Tall QA\n\nPlain markdown"), false);
+});
+
+test("noteBodyToHtml passes HTML through so Freshdesk does not show literal tags", () => {
+  const raw =
+    '<div><strong>Ready for Tall QA</strong></div>\n<div>(via Cursor)</div>';
+  assert.equal(noteBodyToHtml(raw), raw);
+  assert.match(noteBodyToHtml("## Ready for Tall QA"), /<strong>Ready for Tall QA<\/strong>/);
 });

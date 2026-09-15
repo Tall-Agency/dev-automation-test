@@ -112,6 +112,18 @@ export function markdownToHtml(markdown: string): string {
       continue;
     }
 
+    // Image alone on a line: ![alt](url)
+    const imageOnly = /^!\[([^\]]*)\]\((https?:[^)\s]+)\)$/.exec(trimmed);
+    if (imageOnly) {
+      flushParagraph();
+      html.push(
+        `<div><img src="${escapeHtml(imageOnly[2])}" alt="${escapeHtml(
+          imageOnly[1]
+        )}" style="max-width:100%;border:1px solid #ddd"></div>`
+      );
+      continue;
+    }
+
     // Table: a header row followed by a divider.
     if (
       trimmed.includes("|") &&
@@ -203,4 +215,27 @@ export function markdownToHtml(markdown: string): string {
 
   flushParagraph();
   return html.join("\n");
+}
+
+/**
+ * True when the body is already HTML (agents sometimes emit <div>/<img>
+ * instead of Markdown). Feeding that through markdownToHtml escapes the tags
+ * and Freshdesk shows literal markup.
+ */
+export function looksLikeHtml(body: string): boolean {
+  const trimmed = body.trim();
+  if (!trimmed) return false;
+  // Common agent-emitted wrappers, or any leading tag.
+  return /^<[a-z][\s\S]*>/i.test(trimmed);
+}
+
+/** Resolve note body to Freshdesk HTML. */
+export function noteBodyToHtml(
+  body: string,
+  format?: "markdown" | "html"
+): string {
+  if (format === "html" || (format !== "markdown" && looksLikeHtml(body))) {
+    return body.trim();
+  }
+  return markdownToHtml(body);
 }

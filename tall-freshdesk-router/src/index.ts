@@ -1,5 +1,5 @@
 import { forwardToCursor, normalizeToken, webhookForPhase } from "./cursor.ts";
-import { markdownToHtml } from "./markdown.ts";
+import { noteBodyToHtml } from "./markdown.ts";
 import { shouldForwardNoteAdded } from "./note-gate.ts";
 import { mintActionToken, verifyActionToken } from "./token.ts";
 import {
@@ -411,9 +411,9 @@ async function handleNoteAction(
   const authErr = await authorizeTicketAction(request, env, ticketId);
   if (authErr) return authErr;
 
-  // Agents write Markdown; Freshdesk renders the body as HTML.
-  const html =
-    body.format === "html" ? noteBody : markdownToHtml(noteBody);
+  // Agents should write Markdown. If they send HTML anyway, pass it through -
+  // running markdownToHtml on HTML escapes tags and Freshdesk shows raw markup.
+  const html = noteBodyToHtml(noteBody, body.format);
 
   const result = await createPrivateNote(env, ticketId, html);
   return json({ ok: true, ticket_id: ticketId, result });

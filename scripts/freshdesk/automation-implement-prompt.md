@@ -19,6 +19,7 @@ Tall staff read these notes in Freshdesk. Write for a busy person, not a develop
 - Short sentences. Plain English.
 - Handoff notes: what changed on the site, where to look on staging, that it is ready for Tall QA.
 - Clarifying / revised-plan notes: one clear question or a short updated plan - no file paths or build steps in the main text.
+- Write notes as **Markdown only** (`##` headings, links, `![alt](url)` for screenshots). Never send raw HTML (`<div>`, `<img>`, etc.) - the Worker converts Markdown to HTML; HTML fed through that path shows as literal tags in Freshdesk.
 - Do **not** lead with Classification, branch names, PR numbers, CSS tokens, or commit SHAs. You may add one short "Details" line at the end (PR link only) if useful.
 - Aim for under ~120 words on handoffs.
 - End markers exactly: `(via Cursor — revised plan)`, `(via Cursor)`, or include `(via Cursor)` on handoffs.
@@ -73,6 +74,9 @@ sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-r
 
 ## Where to check
 {staging URL or page section to look at}
+
+## Screenshot (staging)
+![staging]({screenshot url})
 
 {optional one line: PR link only}
 
