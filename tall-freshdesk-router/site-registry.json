@@ -4,6 +4,12 @@
     "repo": "cf_repo",
     "note": "Confirm exact cf_* keys via GET /api/v2/ticket_fields in Freshdesk Admin. Display names are Website URL and Repo."
   },
+  "shared_cursor_webhooks": {
+    "note": "Route 1: three Team Owned Freshdesk Automations for ALL SLA repos (multi-repo Cursor environment). Per-repo cursor_webhooks is an optional override only.",
+    "plan": "https://api2.cursor.sh/automations/webhook/4165be44-aac5-11f1-b532-320a589b8025",
+    "implement": "https://api2.cursor.sh/automations/webhook/5937f78c-aac7-11f1-b532-320a589b8025",
+    "reopened_nudge": "https://api2.cursor.sh/automations/webhook/80d52667-aac7-11f1-b532-320a589b8025"
+  },
   "sites": {
     "https://talldevstg.wpenginepowered.com": {
       "slug": "tall-dev",
@@ -16,12 +22,7 @@
           "github": "Tall-Agency/dev-automation-test",
           "label": "Tall-Agency/dev-automation-test",
           "default_branch": "main",
-          "theme_path": "web/app/themes/ai-dev",
-          "cursor_webhooks": {
-            "plan": "https://api2.cursor.sh/automations/webhook/4165be44-aac5-11f1-b532-320a589b8025",
-            "implement": "https://api2.cursor.sh/automations/webhook/5937f78c-aac7-11f1-b532-320a589b8025",
-            "reopened_nudge": "https://api2.cursor.sh/automations/webhook/80d52667-aac7-11f1-b532-320a589b8025"
-          }
+          "theme_path": "web/app/themes/ai-dev"
         }
       ]
     },
@@ -36,12 +37,7 @@
           "github": "Tall-Agency/tall.agency",
           "label": "Tall-Agency/tall.agency",
           "default_branch": "staging",
-          "theme_path": "web/app/themes/tall",
-          "cursor_webhooks": {
-            "plan": "REPLACE_AFTER_CURSOR_PLAN_AUTOMATION",
-            "implement": "REPLACE_AFTER_CURSOR_IMPLEMENT_AUTOMATION",
-            "reopened_nudge": "REPLACE_AFTER_CURSOR_REOPENED_AUTOMATION"
-          }
+          "theme_path": "web/app/themes/tall"
         }
       ]
     }

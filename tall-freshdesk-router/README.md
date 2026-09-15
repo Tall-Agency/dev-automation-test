@@ -1,6 +1,6 @@
 # tall-freshdesk-router
 
-Cloudflare Worker that routes Freshdesk tickets to the correct **per-repo** Cursor Automation using:
+Cloudflare Worker that routes Freshdesk tickets to **shared** Cursor Automations (Route 1 multi-repo) using:
 
 1. **Website URL** custom field (SLA site)
 2. **Repo** custom field (GitHub `owner/repo` when a site has multiple repos)
@@ -16,7 +16,7 @@ Freshdesk (ticket_created | note_added | ticket_reopened)
   → POST /webhook { ticket_id, event }
   → Worker GET ticket + conversations
   → Read cf_website_url + cf_repo → site-registry lookup
-  → POST Cursor automation (enriched payload)
+  → POST shared Cursor automation (enriched payload; agent uses payload.repo.github)
   → Cursor writes back via POST /actions/note | /actions/update-ticket
 ```
 

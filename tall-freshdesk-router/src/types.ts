@@ -16,7 +16,8 @@ export interface RepoEntry {
   label: string;
   default_branch: string;
   theme_path: string | null;
-  cursor_webhooks: CursorWebhooks;
+  /** Optional override. Prefer SiteRegistry.shared_cursor_webhooks (Route 1). */
+  cursor_webhooks?: CursorWebhooks;
 }
 
 export interface SiteEntry {
@@ -32,6 +33,11 @@ export interface SiteRegistry {
     repo: string;
     note?: string;
   };
+  /**
+   * Three shared Freshdesk Automations for every SLA repo (multi-repo Cursor
+   * environment). Per-repo cursor_webhooks overrides a phase when set.
+   */
+  shared_cursor_webhooks?: CursorWebhooks & { note?: string };
   sites: Record<string, SiteEntry>;
 }
 

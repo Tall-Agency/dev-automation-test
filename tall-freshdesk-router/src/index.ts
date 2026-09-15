@@ -329,7 +329,7 @@ async function handleWebhook(
     },
   };
 
-  const webhookUrl = webhookForPhase(resolved.repo, phase);
+  const webhookUrl = webhookForPhase(registry, resolved.repo, phase);
 
   if (dryRun) {
     return json({

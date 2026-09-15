@@ -44,8 +44,12 @@ async function forwardToCursor(env, webhookUrl, payload) {
   const body = await res.text();
   return { status: res.status, body };
 }
-function webhookForPhase(repo, phase) {
-  return repo.cursor_webhooks[phase];
+function webhookForPhase(registry, repo, phase) {
+  const fromRepo = repo.cursor_webhooks?.[phase]?.trim();
+  if (fromRepo) return fromRepo;
+  const fromShared = registry.shared_cursor_webhooks?.[phase]?.trim();
+  if (fromShared) return fromShared;
+  return "";
 }
 
 // src/markdown.ts
@@ -683,7 +687,7 @@ async function handleWebhook(request, env, dryRun) {
       action_token: await mintActionToken(actionSecret(env), ticketId)
     }
   };
-  const webhookUrl = webhookForPhase(resolved.repo, phase);
+  const webhookUrl = webhookForPhase(registry, resolved.repo, phase);
   if (dryRun) {
     return json({
       routed: true,

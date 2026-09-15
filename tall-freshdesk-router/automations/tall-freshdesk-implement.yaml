@@ -1,7 +1,7 @@
-name: "Tall Dev - Freshdesk review and implement"
+name: "Tall Freshdesk - review and implement (shared)"
 description: >-
-  DEPRECATED as single-repo. Prefer shared Route 1 Automations in
-  tall-freshdesk-router/automations/. Kept for local reference.
+  Shared Route 1 webhook: review Pending tickets and implement in the payload
+  repo only. Multi-repo environment. Merges to that repo's deploy branch.
 workflow:
   triggers:
     - webhook: {}
@@ -25,7 +25,7 @@ workflow:
            `.cursor/skills/freshdesk/SKILL.md`, and
            `scripts/freshdesk/automation-implement-prompt.md`.
         3. Base branch = config.git.deploy_branch (or payload.repo.default_branch).
-           Never merge to production.
+           Never merge to production unless config explicitly says so (it must not).
         4. Theme path = config.repo.theme_path (or payload.repo.theme_path).
            If dist/ changed, bump Version: in that theme's style.css.
         5. Staging screenshot: BugHerd get_project_details for

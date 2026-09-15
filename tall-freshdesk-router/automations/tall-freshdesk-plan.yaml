@@ -1,7 +1,7 @@
-name: "Tall Dev - Freshdesk plan to Pending"
+name: "Tall Freshdesk - plan to Pending (shared)"
 description: >-
-  DEPRECATED as single-repo. Prefer shared Route 1 Automations in
-  tall-freshdesk-router/automations/. Kept for local reference.
+  Shared Route 1 webhook: private plan via Worker for ANY SLA repo in the
+  multi-repo environment. Never implements.
 workflow:
   triggers:
     - webhook: {}
@@ -20,7 +20,7 @@ workflow:
         payload worker.action_token.
 
         Multi-repo rules (required):
-        1. Target repo is payload.repo.github.
+        1. Target repo is payload.repo.github (also site.slug, staging_url, bugherd_project_id).
         2. Work ONLY in that repo's workspace folder. Never edit other repos.
         3. Read THAT repo's `.cursor/skills/freshdesk/config.json` and
            `scripts/freshdesk/automation-plan-prompt.md`.

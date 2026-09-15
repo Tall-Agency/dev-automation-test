@@ -4,6 +4,8 @@ Read `.cursor/skills/freshdesk/config.json` and `.cursor/skills/freshdesk/SKILL.
 
 **IO mode: Worker (no Freshdesk MCP).** Context from webhook payload (`freshdesk.conversations`). Writes via `scripts/freshdesk/worker-action.sh`. Private notes only.
 
+**Shared Automations (Route 1):** If the workspace has multiple repos, work only in `payload.repo.github` and use that repo's config.
+
 ## Scope
 
 Interpret the latest **human private note** after the plan marker in `conversations` (where `private` is true and body has no `via Cursor`). Ignore public customer replies for approval.
@@ -35,10 +37,10 @@ If `implement_automation.dry_run` is true: classify + private note only; no code
 
 ## Implement (Approve only)
 
-1. Branch `freshdesk/ticket-{id}` from `main`.
+1. Branch `freshdesk/ticket-{id}` from `git.deploy_branch` / `implement_automation.base_branch` (or `payload.repo.default_branch`).
 2. Worker update: in-progress tags/status per config.
-3. Implement in `theme_path`; build; **if `dist/` changed, bump `Version:` in `web/app/themes/ai-dev/style.css`**; PR → merge `main`.
-4. Staging screenshot via BugHerd `get_project_details` + capture script when available.
+3. Implement in `repo.theme_path`; build; **if `dist/` changed, bump `Version:` in that theme's `style.css`**; PR → merge the deploy branch (never `production` unless config says so - it must not for SLA).
+4. Staging screenshot via BugHerd `get_project_details` (project from config / `site.bugherd_project_id`) + capture script against staging URL.
 5. Private handoff note via Worker; Ready for Tall QA status/tags.
 
 ```bash
@@ -62,11 +64,11 @@ sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-r
 
 ## Asset cache
 
-The theme enqueues `dist/css/styles.css?ver={theme version}` with a one-year
-`max-age`. If the build changed anything in `dist/`, bump `Version:` in
-`web/app/themes/ai-dev/style.css` in the same commit. Without it the asset URL
-does not change, so returning visitors keep the cached file and the fix is live
-but invisible - and a hard refresh hides that from whoever checks staging.
+Themes often enqueue CSS with `?ver={theme version}` and a long `max-age`. If the
+build changed anything in `dist/`, bump `Version:` in the theme `style.css` in
+the same commit. Without it the asset URL does not change, so returning visitors
+keep the cached file and the fix is live but invisible - and a hard refresh hides
+that from whoever checks staging.
 
 ## End of run
 

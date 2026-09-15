@@ -13,7 +13,7 @@ Wrangler dry-run build: **ok** (bundle ~11 KiB).
 ## Manual end-to-end (after deploy + Freshdesk rules)
 
 1. Confirm `cf_website_url` / `cf_repo` keys via ticket_fields API; update registry if needed ([field-keys.md](field-keys.md)).
-2. Create Cursor Automations from `.cursor/automations/tall-dev-freshdesk-*.yaml`; paste webhook URLs into Tall Dev `cursor_webhooks` in `site-registry.json`; redeploy Worker.
+2. Use the three **shared** Freshdesk Automations (`shared_cursor_webhooks` + multi-repo env). Drafts: `tall-freshdesk-router/automations/`. Redeploy Worker after registry edits.
 3. Create a Freshdesk test ticket:
    - Website URL = `https://talldevstg.wpenginepowered.com`
    - Repo blank (auto-select) or `Tall-Agency/dev-automation-test`

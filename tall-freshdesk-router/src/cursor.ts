@@ -1,4 +1,11 @@
-import type { CursorPhase, EnrichedCursorPayload, Env, RepoEntry } from "./types.ts";
+import type {
+  CursorPhase,
+  CursorWebhooks,
+  EnrichedCursorPayload,
+  Env,
+  RepoEntry,
+  SiteRegistry,
+} from "./types.ts";
 
 /** Env var holding the token for each phase, for use in error messages. */
 export function tokenVarForPhase(phase: CursorPhase): string {
@@ -53,7 +60,11 @@ export async function forwardToCursor(
   webhookUrl: string,
   payload: EnrichedCursorPayload
 ): Promise<{ status: number; body: string }> {
-  if (!webhookUrl || webhookUrl.includes("REPLACE_WITH_")) {
+  if (
+    !webhookUrl ||
+    webhookUrl.includes("REPLACE_WITH_") ||
+    webhookUrl.includes("REPLACE_AFTER_")
+  ) {
     throw new Error(
       `Cursor webhook URL is not configured for phase ${payload.phase} / repo ${payload.repo.github}`
     );
@@ -81,9 +92,22 @@ export async function forwardToCursor(
   return { status: res.status, body };
 }
 
+/**
+ * Resolve Cursor webhook URL: per-repo override, else shared_cursor_webhooks.
+ */
 export function webhookForPhase(
+  registry: SiteRegistry,
   repo: RepoEntry,
   phase: CursorPhase
 ): string {
-  return repo.cursor_webhooks[phase];
+  const fromRepo = repo.cursor_webhooks?.[phase]?.trim();
+  if (fromRepo) return fromRepo;
+
+  const shared = registry.shared_cursor_webhooks as
+    | (CursorWebhooks & { note?: string })
+    | undefined;
+  const fromShared = shared?.[phase]?.trim();
+  if (fromShared) return fromShared;
+
+  return "";
 }

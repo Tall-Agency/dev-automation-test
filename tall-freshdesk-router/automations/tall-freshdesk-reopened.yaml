@@ -1,7 +1,7 @@
-name: "Tall Dev - Freshdesk reopened nudge"
+name: "Tall Freshdesk - reopened nudge (shared)"
 description: >-
-  DEPRECATED as single-repo. Prefer shared Route 1 Automations in
-  tall-freshdesk-router/automations/. Kept for local reference.
+  Shared Route 1 webhook: private-note nudge when a ticket returns from QA
+  without an explanation. Multi-repo environment; notes only.
 workflow:
   triggers:
     - webhook: {}
@@ -19,7 +19,8 @@ workflow:
 
         Multi-repo rules:
         1. Target repo is payload.repo.github - if you need files, use THAT repo only.
-        2. Read THAT repo's config + automation-reopened-prompt.md when available.
+        2. Read THAT repo's `.cursor/skills/freshdesk/config.json` and
+           `scripts/freshdesk/automation-reopened-prompt.md` when available.
         3. You can often complete this phase from the payload alone (notes-only).
 
         Private notes only. Plain English nudge. Never implement. End with summary.

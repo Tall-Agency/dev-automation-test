@@ -15,26 +15,19 @@
 | Staging basic auth | In BugHerd project settings only (do not commit) |
 | Ownership | Freshdesk-only (`ownership.comms: freshdesk`) |
 | Zapier | BugHerd → Freshdesk + tag `from-bugherd` + Website URL `https://tall.agency` |
-| Worker registry | `https://tall.agency` in `site-registry.json` (webhooks filled after Cursor automations) |
+| Cursor | **Shared Route 1** Automations (`shared_cursor_webhooks`) - add `Tall-Agency/tall.agency` to the multi-repo environment |
 
 ## Branch model
 
 - Task branch from `staging` → PR → `staging` → DeployHQ staging → QA
 - Promote `staging` → `production` for live (separate DeployHQ / merge)
 
-## Cursor Freshdesk automations (create in Cursor UI)
+## Cursor (no new Automations)
 
-Use yamls from repo `staging` branch:
-
-| Phase | File | Webhook → registry key |
-|-------|------|------------------------|
-| Plan | `.cursor/automations/tall-agency-freshdesk-plan.yaml` | `cursor_webhooks.plan` |
-| Implement | `.cursor/automations/tall-agency-freshdesk-implement.yaml` | `cursor_webhooks.implement` |
-| Reopened | `.cursor/automations/tall-agency-freshdesk-reopened.yaml` | `cursor_webhooks.reopened_nudge` |
-
-Repo: `Tall-Agency/tall.agency` · Branch: `staging` · MCP: BugHerd
-
-After creating each automation, paste the webhook URL into `tall-freshdesk-router/site-registry.json` and redeploy the Worker.
+1. Open the three existing Tall Freshdesk Automations (plan / implement / reopened).
+2. Set environment to **multi-repo** and include `Tall-Agency/tall.agency` (and `Tall-Agency/dev-automation-test`).
+3. Paste prompts from [automations/](../../automations/) if the live Automations still have Tall-Dev-only wording.
+4. Worker already routes `https://tall.agency` via `shared_cursor_webhooks`.
 
 ## Freshdesk
 

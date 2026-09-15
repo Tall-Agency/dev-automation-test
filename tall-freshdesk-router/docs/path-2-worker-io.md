@@ -61,8 +61,9 @@ Confirm under Freshdesk Admin → Ticket Statuses if customised. Store overrides
 
 1. `cd tall-freshdesk-router && npm test && npx wrangler deploy`
 2. Set secrets (domain = `help.tall.agency`)
-3. Paste Cursor webhook URLs into `site-registry.json`
+3. Paste Cursor webhook URLs into `shared_cursor_webhooks` in `site-registry.json` (once for all sites)
 4. Freshdesk automation rules → Worker `/webhook` (see [freshdesk-admin.md](freshdesk-admin.md))
+5. Multi-repo Cursor environment includes every SLA GitHub repo (see [automations/README.md](../automations/README.md))
 5. Create Cursor Automations from `tall-dev-freshdesk-*.yaml` (BugHerd + git only; no Freshdesk MCP)
 6. Nothing to configure for agents - each payload carries `worker.action_token` for its own ticket
 
