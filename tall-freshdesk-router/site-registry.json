@@ -24,6 +24,26 @@
           }
         }
       ]
+    },
+    "https://tall.agency": {
+      "slug": "tall-agency",
+      "staging_url": "https://tallstaging.wpengine.com",
+      "bugherd_project_id": "445234",
+      "comms": "freshdesk",
+      "comms_note": "SLA live: BugHerd intake via Zapier; Cursor on Freshdesk only. Do not enable BugHerd Cursor automations on project 445234.",
+      "repos": [
+        {
+          "github": "Tall-Agency/tall.agency",
+          "label": "Tall-Agency/tall.agency",
+          "default_branch": "staging",
+          "theme_path": "web/app/themes/tall",
+          "cursor_webhooks": {
+            "plan": "REPLACE_AFTER_CURSOR_PLAN_AUTOMATION",
+            "implement": "REPLACE_AFTER_CURSOR_IMPLEMENT_AUTOMATION",
+            "reopened_nudge": "REPLACE_AFTER_CURSOR_REOPENED_AUTOMATION"
+          }
+        }
+      ]
     }
   }
 }
