@@ -40,6 +40,21 @@
           "theme_path": "web/app/themes/tall"
         }
       ]
+    },
+    "https://ala.co.uk": {
+      "slug": "ala",
+      "staging_url": "https://ala.tallpresents.co.uk",
+      "bugherd_project_id": "445220",
+      "comms": "freshdesk",
+      "comms_note": "SLA live: BugHerd intake via Zapier; Cursor on Freshdesk only. Do not enable BugHerd Cursor automations on project 445220.",
+      "repos": [
+        {
+          "github": "Tall-Agency/ala.co.uk",
+          "label": "Tall-Agency/ala.co.uk",
+          "default_branch": "staging",
+          "theme_path": "web/app/themes/ala"
+        }
+      ]
     }
   }
 }
