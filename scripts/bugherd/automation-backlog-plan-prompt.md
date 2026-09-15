@@ -4,6 +4,15 @@ Scheduled planner for BugHerd project **Tall Dev** (`527751`). Read `.cursor/ski
 
 MCP server: **BugHerd**. Read each tool schema before calling.
 
+## Ownership gate (required first)
+
+Read `ownership.comms` in config.
+
+- If `ownership.comms` is **`freshdesk`**: do **nothing**. One-line summary: `Skipped - SLA/live site; Cursor comms are Freshdesk-only (BugHerd is intake via Zapier).` Exit.
+- If `ownership.comms` is **`bugherd`** (or missing): continue as below (Tall Dev test board).
+
+Never plan or move tasks when comms is freshdesk - that causes duplicate Cursor runs against the Zapier-created Freshdesk ticket.
+
 ## Scope
 
 **Plan comment + move to Todo only.** Never implement code, deploy, change assignees, or move to **In progress** / **Ready for Tall QA**.

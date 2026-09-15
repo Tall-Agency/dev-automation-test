@@ -4,6 +4,13 @@ Scheduled watcher for BugHerd project **Tall Dev** (`527751`). Read `.cursor/ski
 
 MCP server: **BugHerd**. Read each tool schema before calling.
 
+## Ownership gate (required first)
+
+Read `ownership.comms` in config.
+
+- If `ownership.comms` is **`freshdesk`**: do **nothing**. One-line summary: `Skipped - SLA/live site; Cursor comms are Freshdesk-only.` Exit.
+- If `ownership.comms` is **`bugherd`** (or missing): continue.
+
 ## Scope
 
 **Comments only.** Never implement code, deploy, change task status, or change assignees.

@@ -20,6 +20,7 @@ workflow:
         - `scripts/bugherd/automation-reopened-backlog-prompt.md`
 
         Use BugHerd MCP for project `527751`. Never change code, deploy, task status, or assignees.
+        Ownership: if ownership.comms in config is freshdesk, exit (Freshdesk-only comms).
         Follow duplicate-nudge and skip-new-ticket rules in the prompt file.
 
         End with a one-paragraph summary of what you checked and any nudges posted.

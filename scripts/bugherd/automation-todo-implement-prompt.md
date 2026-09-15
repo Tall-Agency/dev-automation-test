@@ -4,6 +4,13 @@ Scheduled implementer for BugHerd project **Tall Dev** (`527751`). Read `.cursor
 
 MCP server: **BugHerd**. Read each tool schema before calling.
 
+## Ownership gate (required first)
+
+Read `ownership.comms` in config.
+
+- If `ownership.comms` is **`freshdesk`**: do **nothing**. One-line summary: `Skipped - SLA/live site; Cursor comms are Freshdesk-only.` Exit.
+- If `ownership.comms` is **`bugherd`** (or missing): continue.
+
 ## Scope
 
 Process tasks in **Todo** with an agent plan marker. **Read and interpret** the latest **human** comment after the plan (not keyword-only).

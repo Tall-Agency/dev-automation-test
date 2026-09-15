@@ -16,6 +16,9 @@ workflow:
 
         Use BugHerd MCP. Read tool schemas before calling. Project 527751, column Backlog → Todo.
 
+        Ownership: read ownership.comms in config.json. If freshdesk, exit immediately
+        (SLA/live - Cursor comms are Freshdesk-only). Only continue when comms is bugherd.
+
         Read repo files when available:
         - `.cursor/skills/bugherd/config.json`
         - `scripts/bugherd/automation-backlog-plan-prompt.md`

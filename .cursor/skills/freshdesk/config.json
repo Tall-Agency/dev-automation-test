@@ -11,6 +11,12 @@
     "theme_path": "web/app/themes/ai-dev"
   },
   "bugherd_project_id": "527751",
+  "ownership": {
+    "comms": "freshdesk",
+    "intake": ["freshdesk", "bugherd_via_zapier"],
+    "from_bugherd_tag": "from-bugherd",
+    "note": "SLA/live sites: BugHerd is intake only (Zapier creates the Freshdesk ticket). All Cursor plan/approve/implement notes stay in Freshdesk. Do not enable BugHerd Cursor automations on that BugHerd project."
+  },
   "worker": {
     "base_url": "https://tall-freshdesk-router.tall-account.workers.dev",
     "secret_env": "FRESHDESK_ROUTER_SECRET",

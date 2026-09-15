@@ -14,6 +14,8 @@ MCP server: **BugHerd** - read tool schemas before every call.
 
 Config: [config.json](config.json) (project `527751`, column names, URLs).
 
+**Ownership:** read `ownership.comms` in config. If it is `freshdesk`, BugHerd Cursor automations must **no-op** - SLA/live sites use Zapier → Freshdesk for all plan/approve/implement notes. Only run BugHerd phases when `comms` is `bugherd` (Tall Dev test board).
+
 Deep reference: [reference.md](reference.md). Operator guide: [scripts/bugherd/README.md](../../../scripts/bugherd/README.md).
 
 ## When to act

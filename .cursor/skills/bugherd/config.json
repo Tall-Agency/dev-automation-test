@@ -56,6 +56,10 @@
     "github": "Tall-Agency/dev-automation-test",
     "theme_path": "web/app/themes/ai-dev"
   },
+  "ownership": {
+    "comms": "bugherd",
+    "note": "bugherd = Cursor plan/implement/nudge run in BugHerd (Tall Dev test board). For SLA/live client sites set comms to freshdesk so Zapier→Freshdesk owns all Cursor conversation and these BugHerd automations must no-op."
+  },
   "scripts": {
     "loop_prompt": "scripts/bugherd/loop-reopened-backlog-prompt.md",
     "automation_prompt_phase1": "scripts/bugherd/automation-reopened-backlog-prompt.md",

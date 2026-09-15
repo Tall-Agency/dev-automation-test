@@ -40,6 +40,8 @@
 
 6. Redeploy the Worker (`npx wrangler deploy`) or update KV key `site-registry` if using KV.
 
+7. **BugHerd + Zapier (SLA/live):** BugHerd intake → Zapier → Freshdesk ticket. Cursor runs **only** on Freshdesk. See [bugherd-zapier-sla.md](bugherd-zapier-sla.md). In the client repo set BugHerd `ownership.comms` to `freshdesk` and do **not** enable BugHerd Cursor automations for that project.
+
 ## Additional repo under an existing site
 
 1. Add `owner/repo` to Freshdesk Repo dropdown.

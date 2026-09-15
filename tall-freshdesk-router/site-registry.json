@@ -9,6 +9,8 @@
       "slug": "tall-dev",
       "staging_url": "https://talldevstg.wpenginepowered.com",
       "bugherd_project_id": "527751",
+      "comms": "freshdesk",
+      "comms_note": "SLA pattern: BugHerd intake via Zapier; Cursor on Freshdesk only. Tall Dev may still run BugHerd-native automations for testing (see bugherd skill ownership.comms).",
       "repos": [
         {
           "github": "Tall-Agency/dev-automation-test",
