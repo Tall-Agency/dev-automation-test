@@ -28,9 +28,14 @@ workflow:
            Never merge to production.
         4. Theme path = config.repo.theme_path (or payload.repo.theme_path).
            If dist/ changed, bump Version: in that theme's style.css.
-        5. Staging screenshot: BugHerd get_project_details for
-           site.bugherd_project_id + that repo's capture script against
-           site.staging_url / config.urls.staging.
+        5. Staging screenshot is MANDATORY before Ready for Tall QA.
+           Never skip. Never say auth is "not in the agent environment".
+           Call BugHerd get_project_details for payload.site.bugherd_project_id
+           (or config.bugherd_project_id); use basic_auth_username /
+           basic_auth_password for the capture script. Attach PNG with
+           worker-action.sh note-file. If BugHerd MCP or capture fails,
+           stay in progress and private-note the real blocker - do not
+           mark Ready for Tall QA without the attachment.
 
         If dry_run true: classify + private note only.
         Branch freshdesk/ticket-{id} from the deploy branch; PR → merge deploy branch.

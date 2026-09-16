@@ -58,9 +58,9 @@ A successful build is not enough. Unknown `var(--…)` names compile fine and ch
 3. Implement in `repo.theme_path`; run theme build (`npm run build` in the theme).
    If `dist/` is gitignored (Tall Agency theme), **force-add the rebuilt `dist/`** (`git add -f …/dist`) so DeployHQ ships hashed CSS/JS - SCSS-only commits will not change the live site.
    Also bump `Version:` in that theme's `style.css` when useful for any non-hashed assets; PR → merge the deploy branch (never `production` unless config says so - it must not for SLA).
-4. Staging screenshot via BugHerd `get_project_details` (project from config / `site.bugherd_project_id`) + capture script against staging URL.
-5. Private handoff note via Worker **with the PNG attached** (see Screenshot attachments). Do **not** hotlink BugHerd/external image URLs in the note body - Freshdesk shows a broken image.
-6. Ready for Tall QA status/tags.
+4. **Staging screenshot is mandatory** (see Screenshot required). Never skip it.
+5. Private handoff note via Worker **with the PNG attached** (`note-file`). Do **not** hotlink BugHerd/external image URLs in the note body - Freshdesk shows a broken image.
+6. Ready for Tall QA status/tags - **only after** the PNG is attached.
 
 ```bash
 export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"
@@ -105,11 +105,42 @@ sh scripts/freshdesk/worker-action.sh update <id> '{"status":4,"tags":["cursor-r
 
 Do **not** include a Markdown image line for the staging shot when using `note-file` - the file is a Freshdesk attachment on the note.
 
-## Screenshot attachments
+## Screenshot required (hard stop)
 
-- Capture with `scripts/bugherd/capture-staging-screenshot.mjs`.
-- Post with `worker-action.sh note-file` so Freshdesk stores the file on the note.
-- Never rely on `![alt](https://files.bugherd.com/...)` or other hotlinks in the note body for QA evidence.
+A merged PR without a Freshdesk **file** attachment is an incomplete run. Do **not** mark Ready for Tall QA and do **not** write a handoff that asks staff to “confirm on staging” instead of attaching the shot.
+
+### Auth (Cloud Agents have no `.env`)
+
+Staging basic auth is **not** expected in `STAGING_BASIC_AUTH_*` secrets. Always load it from BugHerd:
+
+1. Call BugHerd MCP `get_project_details` with project id =
+   `payload.site.bugherd_project_id` **or** `config.staging_basic_auth.bugherd_project_id` /
+   `config.bugherd_project_id`.
+2. Use response fields `basic_auth_username` and `basic_auth_password`.
+3. Export them as `STAGING_BASIC_AUTH_USER` / `STAGING_BASIC_AUTH_PASSWORD` for the capture script only.
+
+Forbidden excuses (do not use these):
+
+- “staging HTTP basic auth was not available in the agent environment”
+- Skipping capture because env vars were empty (you must call BugHerd first)
+- Handoff via plain `note` without `note-file`
+
+### Capture + attach
+
+- URL: `payload.site.staging_url` or `config.urls.staging`.
+- Script: `scripts/bugherd/capture-staging-screenshot.mjs`.
+- Post with `worker-action.sh note-file` so Freshdesk stores the PNG on the note.
+- Never rely on `![alt](https://files.bugherd.com/...)` or other hotlinks for QA evidence.
+
+### If capture still fails
+
+Stay **in progress** (do not Ready for Tall QA). Private note the real blocker only:
+
+- BugHerd MCP error / unavailable, or
+- `basic_auth_*` missing on that BugHerd project (ask owner to set project basic auth), or
+- capture script / staging HTTP error
+
+End with `(via Cursor)`.
 
 ## Asset cache / build output
 

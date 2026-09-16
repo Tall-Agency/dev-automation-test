@@ -25,6 +25,10 @@ Config: [config.json](config.json). Router: [tall-freshdesk-router/](../../../ta
 4. Do **not** require Freshdesk MCP.
 5. **Staff-facing notes are plain English** - short, non-technical. See the automation prompts for templates. Keep file paths, CSS tokens, and branch names out of the main note.
 6. **SLA/live ownership:** BugHerd is intake only (Zapier creates this ticket). All Cursor conversation stays in Freshdesk private notes. Do not also run BugHerd Cursor automations on that project's board.
+7. **Staging screenshot required** on every implement handoff: BugHerd
+   `get_project_details` → `basic_auth_*` → capture script → `note-file`.
+   Never mark Ready for Tall QA without the PNG. Never skip because env vars
+   are empty (auth comes from BugHerd MCP, not Cloud Agent secrets).
 
 ## Routing
 
