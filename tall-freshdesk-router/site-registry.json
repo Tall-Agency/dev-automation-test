@@ -55,6 +55,21 @@
           "theme_path": "web/app/themes/ala"
         }
       ]
+    },
+    "https://absolute-eng.com": {
+      "slug": "absolute-eng",
+      "staging_url": "https://absolute.tallpresents.co.uk",
+      "bugherd_project_id": "445221",
+      "comms": "freshdesk",
+      "comms_note": "SLA live: BugHerd intake via Zapier; Cursor on Freshdesk only. Do not enable BugHerd Cursor automations on project 445221.",
+      "repos": [
+        {
+          "github": "Tall-Agency/absolute-eng.com",
+          "label": "Tall-Agency/absolute-eng.com",
+          "default_branch": "staging",
+          "theme_path": "web/app/themes/absolute"
+        }
+      ]
     }
   }
 }
