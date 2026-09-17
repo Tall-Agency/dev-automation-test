@@ -97,7 +97,7 @@
           "github": "Tall-Agency/expressbifolds.co.uk",
           "label": "Tall-Agency/expressbifolds.co.uk",
           "default_branch": "staging",
-          "theme_path": "web/app/themes/express-bifolds"
+          "theme_path": "web/app/themes/expressbifolding"
         }
       ]
     }
