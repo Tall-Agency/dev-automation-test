@@ -28,13 +28,17 @@ Tall staff read these notes in Freshdesk. Write for a busy person, not a develop
 
 If `implement_automation.dry_run` is true: classify + private note only; no code.
 
-## Classify
+## Classify (strict)
 
-| Intent | Action |
-|--------|--------|
-| Approve | Implement **only if** the approved plan maps to real theme values (see Design tokens) |
-| Revise | Private revised plan; stay Pending; `(via Cursor — revised plan)` |
-| Unclear | Clarifying private note; stay Pending; `(via Cursor)` |
+Read the latest **human** private note after the plan. Choose **one** intent. When unsure between Approve and Unclear → **Unclear**. Never invent approval.
+
+| Intent | Only when… | Action |
+|--------|------------|--------|
+| **Approve** | Clear go-ahead to **build the plan as written** (e.g. "proceed", "approved", "yes go ahead", "LGTM", "do it"). | Implement **only if** the plan maps to real theme values (see Design tokens) |
+| **Revise** | They change what should be built, or reject part of the plan. | Private revised plan; stay Pending; `(via Cursor — revised plan)` |
+| **Unclear** | Speculation, diagnosis, extra context, questions, or anything that is **not** an explicit approve (e.g. "I think it's related to a WP/Gravity Forms update", "maybe caching?", "could this be a plugin?"). | Private clarifying note; stay Pending; `(via Cursor)`. Acknowledge their note briefly, say whether the posted plan still applies or needs a different approach, and **ask them to confirm before you build**. Do **not** implement. |
+
+Examples that are **not** Approve: cause hypotheses, "fyi", links without "go ahead", partial thoughts, "interesting", troubleshooting tips.
 
 ## Design tokens and unknowns (hard stop)
 
