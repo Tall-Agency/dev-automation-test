@@ -59,14 +59,32 @@ A successful build is not enough. Unknown `var(--…)` names compile fine and ch
 
 1. Branch `freshdesk/ticket-{id}` from **`git.task_base_branch`** if set, else **`implement_automation.base_branch`**.
    For SLA sites that is usually **`production`** (live tip). Do **not** cut from `staging` unless config says so.
+   **Why production:** staging may hold unfinished work. The task branch must stay a clean delta from live so Tall can promote it later without dragging unrelated staging commits.
 2. Worker update: in-progress tags/status per config.
 3. Implement in `repo.theme_path`; run theme build (`npm run build` in the theme).
    If `dist/` is gitignored (Tall Agency theme), **force-add the rebuilt `dist/`** (`git add -f …/dist`) so DeployHQ ships hashed CSS/JS - SCSS-only commits will not change the live site.
    Also bump `Version:` in that theme's `style.css` when useful for any non-hashed assets.
-4. Open PR → merge into **`git.deploy_branch`** only (usually **`staging`** for SLA). Never merge the task branch to `production` in this automation - Tall promotes to live after QA.
+   Commit on `freshdesk/ticket-{id}` and push that branch (keep it - Tall merges it to `production` after QA).
+4. Land the fix on **`git.deploy_branch`** only (usually **`staging`** for SLA) for QA. Never merge the task branch to `production` in this automation.
 5. **Staging screenshot is mandatory** (see Screenshot required). Never skip it.
 6. Private handoff note via Worker **with the PNG attached** (`note-file`). Do **not** hotlink BugHerd/external image URLs in the note body - Freshdesk shows a broken image.
 7. Ready for Tall QA status/tags - **only after** the PNG is attached.
+
+### Landing on staging (shared history vs orphan)
+
+After the fix commits exist on `freshdesk/ticket-{id}`:
+
+**A. Shared history** (`production` and `staging` share an ancestor): open PR `freshdesk/ticket-{id}` → `deploy_branch` and merge.
+
+**B. Orphan / unrelated histories** (common after Bitbucket→GitHub orphan imports - `git merge-base production staging` fails):
+1. Do **not** merge `freshdesk/ticket-{id}` into `staging` (no merge base; do not use `--allow-unrelated-histories`).
+2. Do **not** re-cut the task branch from `staging` (that embeds unfinished staging work into the go-live path).
+3. From `deploy_branch` (`staging`), cut `freshdesk/ticket-{id}-staging`.
+4. `git cherry-pick` the ticket fix commit(s) from `freshdesk/ticket-{id}` onto that branch (resolve conflicts against staging only; keep the same theme change).
+5. Open PR `freshdesk/ticket-{id}-staging` → `staging` and merge.
+6. Leave `freshdesk/ticket-{id}` (production-based) on the remote for Tall to merge to `production` after QA.
+
+Detect orphan with: `git merge-base origin/production origin/staging` failing, or Git refusing the PR merge for unrelated histories.
 
 ```bash
 export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"

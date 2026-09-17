@@ -24,10 +24,16 @@ workflow:
         2. Read THAT repo's `.cursor/skills/freshdesk/config.json`,
            `.cursor/skills/freshdesk/SKILL.md`, and
            `scripts/freshdesk/automation-implement-prompt.md`.
-        3. Cut task branch from config.git.task_base_branch if set, else
-           config.implement_automation.base_branch (SLA: usually production).
-           Merge PR only to config.git.deploy_branch (SLA: usually staging).
-           Never merge to production in this automation.
+        3. Cut freshdesk/ticket-{id} from config.git.task_base_branch if set,
+           else config.implement_automation.base_branch (SLA: usually
+           production). Never cut from staging when task_base is production -
+           staging may hold unfinished work. Push the production-based branch
+           and keep it for Tall to merge to production after QA.
+           Land on deploy_branch (SLA: staging) only in this automation:
+           if production/staging share history, PR ticket branch → staging;
+           if orphan/unrelated histories, cherry-pick fix commits onto
+           freshdesk/ticket-{id}-staging cut from staging, PR that → staging.
+           Never --allow-unrelated-histories. Never merge to production here.
         4. Theme path = config.repo.theme_path (or payload.repo.theme_path).
            Use only existing design tokens (grep _vars / nearby components).
            If the request does not map to a real token, private-note a clear
@@ -44,8 +50,8 @@ workflow:
            mark Ready for Tall QA without the attachment.
 
         If dry_run true: classify + private note only.
-        Branch freshdesk/ticket-{id} from task_base_branch (production on SLA);
-        PR → merge deploy_branch (staging on SLA) only.
+        Branch freshdesk/ticket-{id} from task_base (production on SLA);
+        land on deploy_branch (staging) via PR or orphan cherry-pick path.
         Private notes only. Plain English handoff. End with summary.
   model: ""
   agentOptions:
