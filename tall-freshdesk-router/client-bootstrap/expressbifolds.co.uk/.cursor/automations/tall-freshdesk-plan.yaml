@@ -1,0 +1,36 @@
+name: "Tall Freshdesk - plan to Pending (shared)"
+description: >-
+  Shared Route 1 webhook: private plan via Worker for ANY SLA repo in the
+  multi-repo environment. Never implements.
+workflow:
+  triggers:
+    - webhook: {}
+  actions:
+    - mcp:
+        server:
+          name: BugHerd
+  prompts:
+    - prompt: |
+        You are the Tall Freshdesk planner (Phase 2). Path 2 Worker I/O.
+        Shared automation for all SLA sites (multi-repo Cursor environment).
+
+        Do NOT use Freshdesk MCP. Ticket context is in the webhook payload.
+        Write private notes and status updates only via
+        scripts/freshdesk/worker-action.sh using FRESHDESK_ACTION_TOKEN from
+        payload worker.action_token.
+
+        Multi-repo rules (required):
+        1. Target repo is payload.repo.github (also site.slug, staging_url, bugherd_project_id).
+        2. Work ONLY in that repo's workspace folder. Never edit other repos.
+        3. Read THAT repo's `.cursor/skills/freshdesk/config.json` and
+           `scripts/freshdesk/automation-plan-prompt.md`.
+        4. Verify config.repo.github matches payload.repo.github before planning.
+        5. Optional BugHerd enrichment using site.bugherd_project_id only.
+
+        Never public-reply. Never implement.
+        Staff notes: plain English. Follow the plan template in the prompt file.
+        Max one ticket per webhook/run. End with summary.
+  model: ""
+  agentOptions:
+    skipInstall: false
+  memoryEnabled: false

@@ -1,0 +1,112 @@
+{
+  "website_url": "https://expressbifolds.co.uk",
+  "io_mode": "worker",
+  "freshdesk_fields": {
+    "website_url": "cf_website_url",
+    "repo": "cf_repo"
+  },
+  "freshdesk_domain": "help.tall.agency",
+  "repo": {
+    "github": "Tall-Agency/expressbifolds.co.uk",
+    "theme_path": "web/app/themes/expressbifolding"
+  },
+  "bugherd_project_id": "445223",
+  "ownership": {
+    "comms": "freshdesk",
+    "intake": [
+      "freshdesk",
+      "bugherd_via_zapier"
+    ],
+    "from_bugherd_tag": "from-bugherd",
+    "note": "SLA/live: BugHerd is intake via Zapier. All Cursor plan/approve/implement notes stay in Freshdesk. Do not enable BugHerd Cursor automations for project 445223."
+  },
+  "worker": {
+    "base_url": "https://tall-freshdesk-router.tall-account.workers.dev",
+    "secret_env": "FRESHDESK_ROUTER_SECRET",
+    "note": "Per-ticket action_token from webhook payload."
+  },
+  "status_ids": {
+    "open": 2,
+    "pending": 3,
+    "resolved": 4,
+    "closed": 5
+  },
+  "statuses": {
+    "backlog": "Open",
+    "todo": "Pending",
+    "in_progress": "Open",
+    "ready_for_qa": "Resolved"
+  },
+  "tags": {
+    "backlog": "cursor-backlog",
+    "todo": "cursor-todo",
+    "in_progress": "cursor-in-progress",
+    "ready_for_qa": "cursor-ready-qa"
+  },
+  "comment_markers": {
+    "plan": "(via Cursor — plan)",
+    "revised_plan": "(via Cursor — revised plan)",
+    "agent": "(via Cursor)",
+    "router": "(via Cursor — router)"
+  },
+  "reopened": {
+    "prompt_after_minutes": 10
+  },
+  "plan_automation": {
+    "auto_plan_rework": true,
+    "max_tickets_per_run": 1
+  },
+  "git": {
+    "deploy_branch": "staging",
+    "task_branch_prefix": "freshdesk/ticket-",
+    "never_commit_to_deploy_branch": true
+  },
+  "implement_automation": {
+    "dry_run": false,
+    "max_review_loops": 3,
+    "max_tickets_per_run": 1,
+    "base_branch": "staging",
+    "branch_prefix": "freshdesk/ticket-",
+    "merge_pr_to_deploy": true
+  },
+  "deploy": {
+    "trigger": "push to staging",
+    "staging_url": "https://stage.expressbifolds.co.uk",
+    "production_url": "https://expressbifolds.co.uk",
+    "production_branch": "production",
+    "note": "Cursor merges to staging only. DeployHQ: bash scripts/deployhq-build.sh"
+  },
+  "staging_basic_auth": {
+    "env_user": "STAGING_BASIC_AUTH_USER",
+    "env_password": "STAGING_BASIC_AUTH_PASSWORD",
+    "automation_source": "bugherd_project",
+    "bugherd_project_id": "445223"
+  },
+  "urls": {
+    "staging": "https://stage.expressbifolds.co.uk",
+    "production": "https://expressbifolds.co.uk"
+  },
+  "scripts": {
+    "automation_prompt_phase1": "scripts/freshdesk/automation-reopened-prompt.md",
+    "automation_prompt_plan": "scripts/freshdesk/automation-plan-prompt.md",
+    "automation_prompt_implement": "scripts/freshdesk/automation-implement-prompt.md",
+    "theme_build": "bash scripts/deployhq-build.sh",
+    "capture_staging": "scripts/bugherd/capture-staging-screenshot.mjs"
+  },
+  "automation": {
+    "trigger": "webhook",
+    "io_mode": "worker",
+    "mcp_servers": [
+      "BugHerd"
+    ],
+    "phase1_reopened": {
+      "workflow": ".cursor/automations/tall-freshdesk-reopened.yaml"
+    },
+    "phase2_plan": {
+      "workflow": ".cursor/automations/tall-freshdesk-plan.yaml"
+    },
+    "phase3_implement": {
+      "workflow": ".cursor/automations/tall-freshdesk-implement.yaml"
+    }
+  }
+}

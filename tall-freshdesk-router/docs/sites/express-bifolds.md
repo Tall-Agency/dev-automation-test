@@ -6,7 +6,7 @@
 | Staging URL | `https://stage.expressbifolds.co.uk` |
 | Freshdesk Website URL / registry key | `expressbifolds.co.uk` |
 | Bitbucket source | `https://bitbucket.org/madebytall/expressbifolds.co.uk` |
-| GitHub repo | `Tall-Agency/expressbifolds.co.uk` |
+| GitHub repo | https://github.com/Tall-Agency/expressbifolds.co.uk |
 | Theme path | `web/app/themes/expressbifolding` |
 | Deploy branch (staging) | `staging` |
 | Deploy branch (production) | `production` |
