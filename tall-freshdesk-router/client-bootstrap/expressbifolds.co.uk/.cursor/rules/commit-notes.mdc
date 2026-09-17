@@ -1,0 +1,29 @@
+---
+description: Format for commit notes when the user asks for them
+alwaysApply: true
+---
+
+# Commit Notes
+
+When the user asks for "commit notes", provide a plain-text summary of the changes made in the current session, formatted for copy-pasting into a commit message or changelog.
+
+## Format
+
+```
+<Short summary line: type + what changed>
+
+- <Bullet point explaining the change>
+- <Bullet point explaining why>
+- <Any relevant context (e.g. performance, trade-offs)>
+
+File(s) changed:
+- <relative path to file>
+```
+
+## Rules
+
+- Use plain text only (no markdown formatting like bold, headers, or backticks)
+- Present in a single fenced code block so the user can copy-paste easily
+- Keep it concise but informative
+- Start with a short summary line (e.g. "Fix: ...", "Add: ...", "Refactor: ...")
+- List the files changed at the end

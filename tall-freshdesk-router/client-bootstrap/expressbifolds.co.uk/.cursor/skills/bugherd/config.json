@@ -1,0 +1,20 @@
+{
+  "project_id": "445223",
+  "project_name": "Express Bi-Folds",
+  "ownership": {
+    "comms": "freshdesk",
+    "note": "SLA/live site. Cursor automations must no-op here; all plan/approve/implement runs on Freshdesk after Zapier creates the ticket."
+  },
+  "urls": {
+    "staging": "https://stage.expressbifolds.co.uk",
+    "production": "https://expressbifolds.co.uk"
+  },
+  "staging_basic_auth": {
+    "automation_source": "bugherd_project",
+    "note": "Automations: get_project_details → basic_auth_* for screenshots only."
+  },
+  "repo": {
+    "github": "Tall-Agency/expressbifolds.co.uk",
+    "theme_path": "web/app/themes/expressbifolding"
+  }
+}

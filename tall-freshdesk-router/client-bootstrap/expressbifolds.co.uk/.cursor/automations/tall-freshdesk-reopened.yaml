@@ -1,0 +1,30 @@
+name: "Tall Freshdesk - reopened nudge (shared)"
+description: >-
+  Shared Route 1 webhook: private-note nudge when a ticket returns from QA
+  without an explanation. Multi-repo environment; notes only.
+workflow:
+  triggers:
+    - webhook: {}
+  actions:
+    - mcp:
+        server:
+          name: BugHerd
+  prompts:
+    - prompt: |
+        You are the Tall Freshdesk reopened-ticket watcher (Phase 1). Path 2 Worker I/O.
+        Shared automation for all SLA sites.
+
+        Do NOT use Freshdesk MCP. Prefer webhook payload. Write nudges only via
+        scripts/freshdesk/worker-action.sh (FRESHDESK_ACTION_TOKEN from payload).
+
+        Multi-repo rules:
+        1. Target repo is payload.repo.github - if you need files, use THAT repo only.
+        2. Read THAT repo's `.cursor/skills/freshdesk/config.json` and
+           `scripts/freshdesk/automation-reopened-prompt.md` when available.
+        3. You can often complete this phase from the payload alone (notes-only).
+
+        Private notes only. Plain English nudge. Never implement. End with summary.
+  model: ""
+  agentOptions:
+    skipInstall: false
+  memoryEnabled: false
