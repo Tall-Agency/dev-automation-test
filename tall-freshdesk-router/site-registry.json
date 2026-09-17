@@ -70,6 +70,36 @@
           "theme_path": "web/app/themes/absolute"
         }
       ]
+    },
+    "https://victorialeeds.co.uk": {
+      "slug": "victorialeeds",
+      "staging_url": "https://vicleedsstage.wpenginepowered.com",
+      "bugherd_project_id": "512966",
+      "comms": "freshdesk",
+      "comms_note": "SLA live: BugHerd intake via Zapier; Cursor on Freshdesk only. Do not enable BugHerd Cursor automations on project 512966.",
+      "repos": [
+        {
+          "github": "Tall-Agency/victorialeeds.co.uk",
+          "label": "Tall-Agency/victorialeeds.co.uk",
+          "default_branch": "staging",
+          "theme_path": "web/app/themes/victoria-leeds-2022"
+        }
+      ]
+    },
+    "https://expressbifolds.co.uk": {
+      "slug": "express-bifolds",
+      "staging_url": "https://stage.expressbifolds.co.uk",
+      "bugherd_project_id": "445223",
+      "comms": "freshdesk",
+      "comms_note": "SLA live: BugHerd intake via Zapier; Cursor on Freshdesk only. Do not enable BugHerd Cursor automations on project 445223. Set staging HTTP basic auth on BugHerd SLA project for Path 2 screenshots (realm bifoldsstaging on stage host).",
+      "repos": [
+        {
+          "github": "Tall-Agency/expressbifolds.co.uk",
+          "label": "Tall-Agency/expressbifolds.co.uk",
+          "default_branch": "staging",
+          "theme_path": "web/app/themes/express-bifolds"
+        }
+      ]
     }
   }
 }
