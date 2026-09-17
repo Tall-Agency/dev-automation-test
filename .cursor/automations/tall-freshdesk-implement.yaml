@@ -1,0 +1,53 @@
+name: "Tall Freshdesk - review and implement (shared)"
+description: >-
+  Shared Route 1 webhook: review Pending tickets and implement in the payload
+  repo only. Multi-repo environment. Merges to that repo's deploy branch.
+workflow:
+  triggers:
+    - webhook: {}
+  actions:
+    - mcp:
+        server:
+          name: BugHerd
+    - gitPr: {}
+  prompts:
+    - prompt: |
+        You are the Tall Freshdesk implementer (Phase 3). Path 2 Worker I/O.
+        Shared automation for all SLA sites (multi-repo Cursor environment).
+
+        Do NOT use Freshdesk MCP. Use payload conversations for approval.
+        Write back only via scripts/freshdesk/worker-action.sh
+        (FRESHDESK_ACTION_TOKEN from payload worker.action_token).
+
+        Multi-repo rules (required):
+        1. Target repo is payload.repo.github. Work ONLY there.
+        2. Read THAT repo's `.cursor/skills/freshdesk/config.json`,
+           `.cursor/skills/freshdesk/SKILL.md`, and
+           `scripts/freshdesk/automation-implement-prompt.md`.
+        3. Cut task branch from config.git.task_base_branch if set, else
+           config.implement_automation.base_branch (SLA: usually production).
+           Merge PR only to config.git.deploy_branch (SLA: usually staging).
+           Never merge to production in this automation.
+        4. Theme path = config.repo.theme_path (or payload.repo.theme_path).
+           Use only existing design tokens (grep _vars / nearby components).
+           If the request does not map to a real token, private-note a clear
+           alternative and stay Pending - never invent var(--…) names.
+           Run yarn/npm build in the theme. If DeployHQ already builds dist on
+           deploy, committing dist is optional; still never merge to production.
+        5. Staging screenshot is MANDATORY before Ready for Tall QA.
+           Never skip. Never say auth is "not in the agent environment".
+           Call BugHerd get_project_details for payload.site.bugherd_project_id
+           (or config.bugherd_project_id); use basic_auth_username /
+           basic_auth_password for the capture script. Attach PNG with
+           worker-action.sh note-file. If BugHerd MCP or capture fails,
+           stay in progress and private-note the real blocker - do not
+           mark Ready for Tall QA without the attachment.
+
+        If dry_run true: classify + private note only.
+        Branch freshdesk/ticket-{id} from task_base_branch (production on SLA);
+        PR → merge deploy_branch (staging on SLA) only.
+        Private notes only. Plain English handoff. End with summary.
+  model: ""
+  agentOptions:
+    skipInstall: false
+  memoryEnabled: false

@@ -57,14 +57,16 @@ A successful build is not enough. Unknown `var(--…)` names compile fine and ch
 
 ## Implement (Approve only)
 
-1. Branch `freshdesk/ticket-{id}` from `git.deploy_branch` / `implement_automation.base_branch` (or `payload.repo.default_branch`).
+1. Branch `freshdesk/ticket-{id}` from **`git.task_base_branch`** if set, else **`implement_automation.base_branch`**.
+   For SLA sites that is usually **`production`** (live tip). Do **not** cut from `staging` unless config says so.
 2. Worker update: in-progress tags/status per config.
 3. Implement in `repo.theme_path`; run theme build (`npm run build` in the theme).
    If `dist/` is gitignored (Tall Agency theme), **force-add the rebuilt `dist/`** (`git add -f …/dist`) so DeployHQ ships hashed CSS/JS - SCSS-only commits will not change the live site.
-   Also bump `Version:` in that theme's `style.css` when useful for any non-hashed assets; PR → merge the deploy branch (never `production` unless config says so - it must not for SLA).
-4. **Staging screenshot is mandatory** (see Screenshot required). Never skip it.
-5. Private handoff note via Worker **with the PNG attached** (`note-file`). Do **not** hotlink BugHerd/external image URLs in the note body - Freshdesk shows a broken image.
-6. Ready for Tall QA status/tags - **only after** the PNG is attached.
+   Also bump `Version:` in that theme's `style.css` when useful for any non-hashed assets.
+4. Open PR → merge into **`git.deploy_branch`** only (usually **`staging`** for SLA). Never merge the task branch to `production` in this automation - Tall promotes to live after QA.
+5. **Staging screenshot is mandatory** (see Screenshot required). Never skip it.
+6. Private handoff note via Worker **with the PNG attached** (`note-file`). Do **not** hotlink BugHerd/external image URLs in the note body - Freshdesk shows a broken image.
+7. Ready for Tall QA status/tags - **only after** the PNG is attached.
 
 ```bash
 export FRESHDESK_ACTION_TOKEN="<payload worker.action_token>"

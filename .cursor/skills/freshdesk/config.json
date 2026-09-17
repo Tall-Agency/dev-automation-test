@@ -13,7 +13,10 @@
   "bugherd_project_id": "527751",
   "ownership": {
     "comms": "freshdesk",
-    "intake": ["freshdesk", "bugherd_via_zapier"],
+    "intake": [
+      "freshdesk",
+      "bugherd_via_zapier"
+    ],
     "from_bugherd_tag": "from-bugherd",
     "note": "SLA/live sites: BugHerd is intake only (Zapier creates the Freshdesk ticket). All Cursor plan/approve/implement notes stay in Freshdesk. Do not enable BugHerd Cursor automations on that BugHerd project."
   },
@@ -57,7 +60,8 @@
   "git": {
     "deploy_branch": "main",
     "task_branch_prefix": "freshdesk/ticket-",
-    "never_commit_to_deploy_branch": true
+    "never_commit_to_deploy_branch": true,
+    "task_base_branch": "main"
   },
   "implement_automation": {
     "dry_run": false,
@@ -90,7 +94,9 @@
   "automation": {
     "trigger": "webhook",
     "io_mode": "worker",
-    "mcp_servers": ["BugHerd"],
+    "mcp_servers": [
+      "BugHerd"
+    ],
     "phase1_reopened": {
       "workflow": ".cursor/automations/tall-dev-freshdesk-reopened.yaml"
     },
